@@ -145,6 +145,7 @@ function buildExercises(lesson) {
       type: 'listen',
       prompt: 'Listen and choose the meaning:',
       question: v[0],
+      audio: v[0],
       options: opts,
       correct: opts.indexOf(v[2])
     });
