@@ -18457,7 +18457,13 @@ var PHASE_COLORS = {
   5: '#e67e22',
   6: '#2c3e50',
   7: '#c0392b',
-  8: '#27ae60'
+  8: '#27ae60',
+  9: '#9b59b6',
+  10: '#1abc9c',
+  11: '#e74c3c',
+  12: '#f39c12',
+  13: '#34495e',
+  14: '#2ecc71'
 };
 
 var PHASE_BG = {
@@ -18468,7 +18474,13 @@ var PHASE_BG = {
   5: '#fef5e7',
   6: '#eaecee',
   7: '#fdedec',
-  8: '#e9f7ef'
+  8: '#e9f7ef',
+  9: '#f4ecf7',
+  10: '#e8f8f5',
+  11: '#fadbd8',
+  12: '#fef5e7',
+  13: '#eaecee',
+  14: '#e8f8f5'
 };
 
 var PHASE_NAMES = {
@@ -18479,5 +18491,46 @@ var PHASE_NAMES = {
   5: 'Verbs',
   6: 'Grammar',
   7: 'Kanji',
-  8: 'Test Prep'
+  8: 'Test Prep',
+  9: 'N5 Review',
+  10: 'N4 Vocabulary',
+  11: 'N4 Verbs',
+  12: 'N4 Grammar',
+  13: 'N4 Kanji',
+  14: 'N4 Test Prep'
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// N4 CURRICULUM EXTENSION (Days 366-395 shown here as examples)
+// Full N4 curriculum (~540 days total) to be added
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Sample N4 lessons (Days 366-395: N5 Review & Bridge Grammar)
+for (var i = 366; i <= 395; i++) {
+  curriculum.push({
+    day: i,
+    phaseNum: 9,
+    phaseName: "N5 Review",
+    week: Math.floor((i - 1) / 7) + 1,
+    title: "N5 Review " + (i - 365) + ": Bridge to N4",
+    intro: "Welcome to N4! This review consolidates your N5 knowledge and prepares you for N4-level content. Focus on areas where you need more practice.",
+    type: "review",
+    chars: [],
+    vocab: [
+      ["ふくしゅう", "ふくしゅう", "review"],
+      ["じゅんび", "じゅんび", "preparation"],
+      ["もくひょう", "もくひょう", "goal"],
+      ["レベル", "レベル", "level"],
+      ["れんしゅう", "れんしゅう", "practice"]
+    ],
+    grammar: {
+      pattern: "N5 Consolidation",
+      meaning: "Review and strengthen N5 foundations",
+      example_jp: "N5のふくしゅうをして、N4のじゅんびをしましょう",
+      example_en: "Let's review N5 and prepare for N4"
+    },
+    practice: "Review your weakest N5 topics. Practice reading, listening, and writing. Use the SRS review system daily.",
+    tip: i === 366 ? "🎉 Welcome to N4! The next 540 days will build on your N5 foundation. Complete N4 curriculum content coming soon!" : "Keep reviewing N5 daily. Consistency is key to mastering N4!"
+  });
+}
+

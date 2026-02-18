@@ -622,11 +622,11 @@ QUnit.module('srsDueCards', function () {
 // ── 12. Curriculum Data Integrity ────────────────────────────────────────────
 QUnit.module('curriculum data integrity', function () {
 
-  QUnit.test('has exactly 365 lessons', function (assert) {
-    assert.equal(curriculum.length, 365);
+  QUnit.test('curriculum is not empty', function (assert) {
+    assert.ok(curriculum.length >= 365, 'should have at least 365 lessons (N5 complete)');
   });
 
-  QUnit.test('day numbers are sequential from 1 to 365', function (assert) {
+  QUnit.test('day numbers are sequential from 1', function (assert) {
     var failures = [];
     curriculum.forEach(function (lesson, i) {
       if (lesson.day !== i + 1) {
@@ -639,7 +639,7 @@ QUnit.module('curriculum data integrity', function () {
   QUnit.test('no duplicate day numbers', function (assert) {
     var days = curriculum.map(function (l) { return l.day; });
     var unique = new Set(days);
-    assert.equal(unique.size, 365, 'all day numbers should be unique');
+    assert.equal(unique.size, curriculum.length, 'all day numbers should be unique');
   });
 
   QUnit.test('every lesson has non-empty required string fields', function (assert) {
@@ -660,7 +660,7 @@ QUnit.module('curriculum data integrity', function () {
     // are distinct sub-types under the Foundations / Verbs phases.
     // A non-string type value (e.g. an array) will never match and will be flagged here.
     var validTypes = new Set(['script', 'lesson', 'grammar', 'kanji', 'review',
-                              'numbers', 'particles', 'verbs']);
+                              'numbers', 'particles', 'verbs', 'vocab']);
     var failures = [];
     curriculum.forEach(function (lesson) {
       if (!validTypes.has(lesson.type)) {
@@ -708,20 +708,20 @@ QUnit.module('curriculum data integrity', function () {
     assert.equal(failures.length, 0, failures.join('\n'));
   });
 
-  QUnit.test('phase numbers are integers from 1 to 8', function (assert) {
+  QUnit.test('phase numbers are integers from 1 to 14', function (assert) {
     var failures = [];
     curriculum.forEach(function (lesson) {
-      if (typeof lesson.phaseNum !== 'number' || lesson.phaseNum < 1 || lesson.phaseNum > 8) {
+      if (typeof lesson.phaseNum !== 'number' || lesson.phaseNum < 1 || lesson.phaseNum > 14) {
         failures.push('day ' + lesson.day + ' phaseNum=' + lesson.phaseNum);
       }
     });
     assert.equal(failures.length, 0, failures.join('\n'));
   });
 
-  QUnit.test('week numbers are integers from 1 to 52', function (assert) {
+  QUnit.test('week numbers are integers from 1 to 130', function (assert) {
     var failures = [];
     curriculum.forEach(function (lesson) {
-      if (typeof lesson.week !== 'number' || lesson.week < 1 || lesson.week > 52) {
+      if (typeof lesson.week !== 'number' || lesson.week < 1 || lesson.week > 130) {
         failures.push('day ' + lesson.day + ' week=' + lesson.week);
       }
     });

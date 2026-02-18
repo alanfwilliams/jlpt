@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>日本語 N5 | 365-Day Course</title>
+<title>日本語 N5/N4 Course</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
@@ -789,7 +789,8 @@ function App() {
   var lesson = curriculum[dayNum - 1];
   var pColor = PHASE_COLORS[lesson.phaseNum] || '#555';
   var pBg = PHASE_BG[lesson.phaseNum] || '#f8f9fa';
-  var pct = Math.round(completed.size / 365 * 100);
+  var totalDays = curriculum.length;
+  var pct = Math.round(completed.size / totalDays * 100);
   var toggleDone = function toggleDone() {
     var wasDone = completed.has(dayNum);
     setCompleted(function (prev) {
@@ -828,7 +829,7 @@ function App() {
     className: "app"
   }, /*#__PURE__*/React.createElement("header", {
     className: "header"
-  }, /*#__PURE__*/React.createElement("h1", null, "\u65E5\u672C\u8A9E N5 | 365-Day Course"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h1", null, "\u65E5\u672C\u8A9E N5/N4 Course"), /*#__PURE__*/React.createElement("div", {
     className: "header-right"
   }, /*#__PURE__*/React.createElement("div", {
     className: "progress-wrap"
@@ -839,7 +840,7 @@ function App() {
     style: {
       width: pct + '%'
     }
-  })), /*#__PURE__*/React.createElement("span", null, completed.size, " ", t('of_365', dayNum))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", null, completed.size, " / ", totalDays)), /*#__PURE__*/React.createElement("div", {
     className: "view-btns"
   }, /*#__PURE__*/React.createElement("button", {
     className: "view-btn ".concat(view === 'day' ? 'active' : ''),
@@ -877,6 +878,7 @@ function App() {
   }) : /*#__PURE__*/React.createElement(DayView, {
     lesson: lesson,
     dayNum: dayNum,
+    totalDays: totalDays,
     pColor: pColor,
     pBg: pBg,
     completed: completed,
@@ -887,6 +889,7 @@ function App() {
 function DayView(_ref0) {
   var lesson = _ref0.lesson,
     dayNum = _ref0.dayNum,
+    totalDays = _ref0.totalDays,
     pColor = _ref0.pColor,
     pBg = _ref0.pBg,
     completed = _ref0.completed,
@@ -1012,15 +1015,15 @@ function DayView(_ref0) {
     disabled: dayNum === 1
   }, t('nav_prev', dayNum)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "day-counter"
-  }, t('day_label', dayNum), " ", dayNum, " ", t('of_365', dayNum)), /*#__PURE__*/React.createElement("button", {
+  }, t('day_label', dayNum), " ", dayNum, " / ", totalDays), /*#__PURE__*/React.createElement("button", {
     className: "nav-btn complete ".concat(isDone ? 'done' : ''),
     onClick: toggleDone
   }, isDone ? t('mark_incomplete', dayNum) : t('mark_complete', dayNum))), /*#__PURE__*/React.createElement("button", {
     className: "nav-btn next",
     onClick: function onClick() {
-      return setDay(Math.min(365, dayNum + 1));
+      return setDay(Math.min(totalDays, dayNum + 1));
     },
-    disabled: dayNum === 365
+    disabled: dayNum === totalDays
   }, t('nav_next', dayNum))));
 }
 function ReviewMode(_ref1) {
