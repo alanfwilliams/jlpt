@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>日本語 N5 | 365-Day Course</title>
+<title>日本語 N5/N4 Course</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
@@ -83,6 +83,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .day-title{font-size:1.1rem}
   .main{padding:12px}
 }
+
+/* Stroke order */
+.stroke-toggle{margin-top:8px;padding:4px 10px;background:#f0f0f0;border:1px solid #ddd;border-radius:6px;font-size:0.7rem;cursor:pointer;color:#666;transition:all 0.2s;font-family:inherit}
+.stroke-toggle:hover{background:#e8e8e8;color:#333}
+.stroke-toggle.active{background:#3498db;color:#fff;border-color:#3498db}
+.stroke-viewer{margin-top:8px;padding:10px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;text-align:center}
+.stroke-viewer svg{max-width:100%;height:auto;max-height:120px}
+.stroke-loading{font-size:0.75rem;color:#999;padding:8px}
+.stroke-error{font-size:0.75rem;color:#e74c3c;padding:8px}
 
 /* Typing tip */
 .typing-tip-box{background:#eef6fd;border:1px solid #a8d4f5;border-radius:8px;padding:12px 16px}
@@ -289,6 +298,24 @@ function speak(text) {
   }
 }
 
+// ── Stroke Order ─────────────────────────────────────────────────────────────
+// Convert a kanji character to its Unicode hex filename (e.g., 一 → 04e00)
+function kanjiToUnicodeHex(char) {
+  var code = char.charCodeAt(0);
+  return code.toString(16).padStart(5, '0');
+}
+
+// Load stroke order SVG for a kanji character
+function loadStrokeOrderSvg(char) {
+  var hex = kanjiToUnicodeHex(char);
+  return fetch('kanji-svg/' + hex + '.svg')
+    .then(function(response) {
+      if (!response.ok) throw new Error('SVG not found');
+      return response.text();
+    });
+}
+
+
 
 
 // ── ReviewView ────────────────────────────────────────────────────────────────
@@ -457,6 +484,70 @@ function TypingTip(_ref8) {
   }, note), /*#__PURE__*/React.createElement("div", {
     className: "typing-hint"
   }, "Enable a Japanese IME first \u2014 Windows: Win+Space \xB7 Mac: Ctrl+Space (or globe key). Then type romaji and it converts automatically.")));
+}
+
+// ── CharCard with Stroke Order ───────────────────────────────────────────────
+function CharCard(_ref9a) {
+  var char = _ref9a.char,
+    isKanji = _ref9a.isKanji;
+  var _React$useState9a = React.useState(false),
+    _React$useState9b = _slicedToArray(_React$useState9a, 2),
+    showStroke = _React$useState9b[0],
+    setShowStroke = _React$useState9b[1];
+  var _React$useState9c = React.useState(null),
+    _React$useState9d = _slicedToArray(_React$useState9c, 2),
+    strokeSvg = _React$useState9d[0],
+    setStrokeSvg = _React$useState9d[1];
+  var _React$useState9e = React.useState(false),
+    _React$useState9f = _slicedToArray(_React$useState9e, 2),
+    loading = _React$useState9f[0],
+    setLoading = _React$useState9f[1];
+  var _React$useState9g = React.useState(false),
+    _React$useState9h = _slicedToArray(_React$useState9g, 2),
+    error = _React$useState9h[0],
+    setError = _React$useState9h[1];
+  
+  var toggleStroke = function() {
+    if (!showStroke && !strokeSvg && !error) {
+      setLoading(true);
+      loadStrokeOrderSvg(char[0])
+        .then(function(svg) {
+          setStrokeSvg(svg);
+          setShowStroke(true);
+          setLoading(false);
+          setError(false);
+        })
+        .catch(function() {
+          setError(true);
+          setLoading(false);
+        });
+    } else {
+      setShowStroke(!showStroke);
+    }
+  };
+  
+  return /*#__PURE__*/React.createElement("div", {
+    className: "char-card"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "char-jp"
+  }, char[0]), /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn speak-btn-char",
+    onClick: function() { return speak(char[0]); },
+    title: "Listen"
+  }, "\uD83D\uDD0A"), /*#__PURE__*/React.createElement("span", {
+    className: "char-reading"
+  }, char[1]), isKanji && /*#__PURE__*/React.createElement("button", {
+    className: "stroke-toggle" + (showStroke ? " active" : ""),
+    onClick: toggleStroke,
+    title: "Toggle stroke order"
+  }, showStroke ? "Hide strokes" : "📝 Strokes"), showStroke && strokeSvg && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-viewer",
+    dangerouslySetInnerHTML: { __html: strokeSvg }
+  }), loading && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-loading"
+  }, "Loading..."), error && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-error"
+  }, "Stroke order not available"));
 }
 
 // ── Exercises ────────────────────────────────────────────────────────────────
@@ -698,7 +789,8 @@ function App() {
   var lesson = curriculum[dayNum - 1];
   var pColor = PHASE_COLORS[lesson.phaseNum] || '#555';
   var pBg = PHASE_BG[lesson.phaseNum] || '#f8f9fa';
-  var pct = Math.round(completed.size / 365 * 100);
+  var totalDays = curriculum.length;
+  var pct = Math.round(completed.size / totalDays * 100);
   var toggleDone = function toggleDone() {
     var wasDone = completed.has(dayNum);
     setCompleted(function (prev) {
@@ -737,7 +829,7 @@ function App() {
     className: "app"
   }, /*#__PURE__*/React.createElement("header", {
     className: "header"
-  }, /*#__PURE__*/React.createElement("h1", null, "\u65E5\u672C\u8A9E N5 | 365-Day Course"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h1", null, "\u65E5\u672C\u8A9E N5/N4 Course"), /*#__PURE__*/React.createElement("div", {
     className: "header-right"
   }, /*#__PURE__*/React.createElement("div", {
     className: "progress-wrap"
@@ -748,7 +840,7 @@ function App() {
     style: {
       width: pct + '%'
     }
-  })), /*#__PURE__*/React.createElement("span", null, completed.size, " ", t('of_365', dayNum))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", null, completed.size, " / ", totalDays)), /*#__PURE__*/React.createElement("div", {
     className: "view-btns"
   }, /*#__PURE__*/React.createElement("button", {
     className: "view-btn ".concat(view === 'day' ? 'active' : ''),
@@ -786,6 +878,7 @@ function App() {
   }) : /*#__PURE__*/React.createElement(DayView, {
     lesson: lesson,
     dayNum: dayNum,
+    totalDays: totalDays,
     pColor: pColor,
     pBg: pBg,
     completed: completed,
@@ -796,6 +889,7 @@ function App() {
 function DayView(_ref0) {
   var lesson = _ref0.lesson,
     dayNum = _ref0.dayNum,
+    totalDays = _ref0.totalDays,
     pColor = _ref0.pColor,
     pBg = _ref0.pBg,
     completed = _ref0.completed,
@@ -848,20 +942,11 @@ function DayView(_ref0) {
   }, t('section_characters', dayNum)), /*#__PURE__*/React.createElement("div", {
     className: "chars-table"
   }, lesson.chars.map(function (c, i) {
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement(CharCard, {
       key: i,
-      className: "char-card"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "char-jp"
-    }, c[0]), /*#__PURE__*/React.createElement("button", {
-      className: "speak-btn speak-btn-char",
-      onClick: function onClick() {
-        return speak(c[0]);
-      },
-      title: "Listen"
-    }, "\uD83D\uDD0A"), /*#__PURE__*/React.createElement("span", {
-      className: "char-reading"
-    }, c[1]));
+      char: c,
+      isKanji: lesson.type === 'kanji'
+    });
   }))), /*#__PURE__*/React.createElement(TypingTip, {
     lesson: lesson
   }), lesson.vocab && lesson.vocab.length > 0 && /*#__PURE__*/React.createElement("div", {
@@ -930,15 +1015,15 @@ function DayView(_ref0) {
     disabled: dayNum === 1
   }, t('nav_prev', dayNum)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "day-counter"
-  }, t('day_label', dayNum), " ", dayNum, " ", t('of_365', dayNum)), /*#__PURE__*/React.createElement("button", {
+  }, t('day_label', dayNum), " ", dayNum, " / ", totalDays), /*#__PURE__*/React.createElement("button", {
     className: "nav-btn complete ".concat(isDone ? 'done' : ''),
     onClick: toggleDone
   }, isDone ? t('mark_incomplete', dayNum) : t('mark_complete', dayNum))), /*#__PURE__*/React.createElement("button", {
     className: "nav-btn next",
     onClick: function onClick() {
-      return setDay(Math.min(365, dayNum + 1));
+      return setDay(Math.min(totalDays, dayNum + 1));
     },
-    disabled: dayNum === 365
+    disabled: dayNum === totalDays
   }, t('nav_next', dayNum))));
 }
 function ReviewMode(_ref1) {

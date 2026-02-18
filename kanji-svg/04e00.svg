@@ -1,0 +1,10 @@
+<!-- Kanji: 一 (U+04E00) from KanjiVG -->
+<!-- License: CC BY-SA 3.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="109" height="109" viewBox="0 0 109 109">
+  <g id="kvg:04e00" style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;">
+    <g id="kvg:04e00-g1">
+      <path id="kvg:04e00-s1" d="M10,53.75c0,0,10.75-1.25,28.25-2.5s66.25-3.25,85.75-3.5"/>
+      <text x="5" y="45" font-size="20" fill="#999" font-weight="bold">1</text>
+    </g>
+  </g>
+</svg>

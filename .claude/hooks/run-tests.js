@@ -312,16 +312,18 @@ test("srsDueCards: all overdue → all returned", function (a) {
 });
 
 // ── 12. Curriculum data integrity ─────────────────────────────────────────────
-test("curriculum: exactly 365 lessons", function (a) { a.equal(curriculum.length, 365); });
+test("curriculum: not empty and has at least N5 (365 lessons)", function (a) {
+  a.ok(curriculum.length >= 365, "should have at least 365 lessons (N5 complete)");
+});
 
-test("curriculum: sequential day numbers 1–365", function (a) {
+test("curriculum: sequential day numbers starting from 1", function (a) {
   var failures = [];
   curriculum.forEach(function (l, i) { if (l.day !== i + 1) failures.push("idx" + i + "→day" + l.day); });
   a.equal(failures.length, 0, failures.join("; "));
 });
 
 test("curriculum: no duplicate day numbers", function (a) {
-  a.equal(new Set(curriculum.map(function (l) { return l.day; })).size, 365);
+  a.equal(new Set(curriculum.map(function (l) { return l.day; })).size, curriculum.length);
 });
 
 test("curriculum: required string fields are non-empty on every lesson", function (a) {
@@ -337,7 +339,7 @@ test("curriculum: required string fields are non-empty on every lesson", functio
 });
 
 test("curriculum: type field is always a known string value", function (a) {
-  var valid = new Set(["script","lesson","grammar","kanji","review","numbers","particles","verbs"]);
+  var valid = new Set(["script","lesson","grammar","kanji","review","numbers","particles","verbs","vocab"]);
   var failures = [];
   curriculum.forEach(function (l) {
     if (!valid.has(l.type))
@@ -372,19 +374,19 @@ test("curriculum: chars entries are 2-element [char, reading] arrays", function 
   a.equal(failures.length, 0, failures.join("\n"));
 });
 
-test("curriculum: phaseNum is 1–8 on every lesson", function (a) {
+test("curriculum: phaseNum is 1–14 on every lesson", function (a) {
   var failures = [];
   curriculum.forEach(function (l) {
-    if (typeof l.phaseNum !== "number" || l.phaseNum < 1 || l.phaseNum > 8)
+    if (typeof l.phaseNum !== "number" || l.phaseNum < 1 || l.phaseNum > 14)
       failures.push("day " + l.day + " phaseNum=" + l.phaseNum);
   });
   a.equal(failures.length, 0, failures.join("\n"));
 });
 
-test("curriculum: week is 1–52 on every lesson", function (a) {
+test("curriculum: week is 1–130 on every lesson", function (a) {
   var failures = [];
   curriculum.forEach(function (l) {
-    if (typeof l.week !== "number" || l.week < 1 || l.week > 52)
+    if (typeof l.week !== "number" || l.week < 1 || l.week > 130)
       failures.push("day " + l.day + " week=" + l.week);
   });
   a.equal(failures.length, 0, failures.join("\n"));
@@ -408,19 +410,30 @@ test("curriculum: days 15–28 are Katakana (phaseNum=2)", function (a) {
   a.equal(f.length, 0, f.map(function (l) { return "day " + l.day; }).join(", "));
 });
 
-test("curriculum: day 365 is the final lesson", function (a) {
-  a.equal(curriculum[364].day, 365);
+test("curriculum: N5 ends at day 365", function (a) {
+  a.equal(curriculum[364].day, 365, "day 365 should be the last N5 lesson");
+});
+
+test("curriculum: N4 starts at day 366 (if present)", function (a) {
+  if (curriculum.length > 365) {
+    a.equal(curriculum[365].day, 366, "day 366 should be the first N4 lesson");
+    a.ok(curriculum[365].phaseNum >= 9, "N4 lessons should have phaseNum 9+");
+  } else {
+    a.ok(true, "N4 not yet added");
+  }
 });
 
 // ── 13. Phase constants ────────────────────────────────────────────────────────
 var EXPECTED_PHASE_NAMES = {
   1: 'Hiragana', 2: 'Katakana', 3: 'Foundations',
   4: 'Vocabulary', 5: 'Verbs', 6: 'Grammar',
-  7: 'Kanji', 8: 'Test Prep'
+  7: 'Kanji', 8: 'Test Prep',
+  9: 'N5 Review', 10: 'N4 Vocabulary', 11: 'N4 Verbs',
+  12: 'N4 Grammar', 13: 'N4 Kanji', 14: 'N4 Test Prep'
 };
-var PHASE_NUMS = [1, 2, 3, 4, 5, 6, 7, 8];
+var PHASE_NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
-test("PHASE_COLORS: defined with all 8 phase keys as non-empty strings", function (a) {
+test("PHASE_COLORS: defined with all phase keys as non-empty strings", function (a) {
   a.ok(typeof PHASE_COLORS === "object" && PHASE_COLORS !== null, "PHASE_COLORS is an object");
   PHASE_NUMS.forEach(function (p) {
     a.ok(typeof PHASE_COLORS[p] === "string" && PHASE_COLORS[p].length > 0,
@@ -428,7 +441,7 @@ test("PHASE_COLORS: defined with all 8 phase keys as non-empty strings", functio
   });
 });
 
-test("PHASE_BG: defined with all 8 phase keys as non-empty strings", function (a) {
+test("PHASE_BG: defined with all phase keys as non-empty strings", function (a) {
   a.ok(typeof PHASE_BG === "object" && PHASE_BG !== null, "PHASE_BG is an object");
   PHASE_NUMS.forEach(function (p) {
     a.ok(typeof PHASE_BG[p] === "string" && PHASE_BG[p].length > 0,
@@ -436,7 +449,7 @@ test("PHASE_BG: defined with all 8 phase keys as non-empty strings", function (a
   });
 });
 
-test("PHASE_NAMES: defined with correct names for all 8 phases", function (a) {
+test("PHASE_NAMES: defined with correct names for all phases", function (a) {
   a.ok(typeof PHASE_NAMES === "object" && PHASE_NAMES !== null, "PHASE_NAMES is an object");
   PHASE_NUMS.forEach(function (p) {
     a.equal(PHASE_NAMES[p], EXPECTED_PHASE_NAMES[p], "PHASE_NAMES[" + p + "]");

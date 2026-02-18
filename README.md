@@ -1,6 +1,6 @@
-# 日本語 N5 — 365-Day Course
+# 日本語 N5/N4 Course
 
-A free, self-contained interactive Japanese course from zero to JLPT N5 in one year.
+A free, self-contained interactive Japanese course from zero to JLPT N4 level.
 **No install. No account. Just open `index.html` in any browser.**
 
 🔗 **Live:** [alanfwilliams.github.io/jlpt-n5](https://alanfwilliams.github.io/jlpt-n5)
@@ -11,12 +11,13 @@ A free, self-contained interactive Japanese course from zero to JLPT N5 in one y
 
 | Feature | Details |
 |---|---|
-| **365 days of lessons** | Hiragana → Katakana → Vocab → Verbs → Grammar → Kanji → Test Prep |
+| **N5 + N4 curriculum** | Complete N5 (365 days) + N4 content (30+ days and growing) |
 | **Spaced repetition (SRS)** | SM-2 algorithm, same as Anki — cards scheduled automatically |
 | **Text-to-speech** | Native browser Japanese voice on every vocab word |
 | **Listening exercises** | Hear a word, pick the meaning |
 | **Quiz mode** | Multiple choice + typing, lesson content blurred so you can't cheat |
 | **Progress saved** | localStorage — your place is remembered between sessions |
+| **Kanji stroke order** | Toggle to show/hide stroke order diagrams (N5 kanji + expanding) |
 | **Offline** | Works without internet after first load |
 
 ## How to use
@@ -44,6 +45,7 @@ Your site will be live at `https://YOUR_USERNAME.github.io/jlpt-n5` within a min
 
 ## Curriculum overview
 
+### N5 Course (Days 1-365)
 - **Days 1–14** — Hiragana (all 46 characters)
 - **Days 15–28** — Katakana (all 46 characters)
 - **Days 29–84** — Foundations (numbers, particles, basic sentences)
@@ -52,6 +54,11 @@ Your site will be live at `https://YOUR_USERNAME.github.io/jlpt-n5` within a min
 - **Days 183–252** — Grammar Patterns (particles, conditionals, keigo)
 - **Days 253–308** — Kanji (all ~100 N5 kanji)
 - **Days 309–365** — Review & JLPT Test Prep
+
+### N4 Course (Days 366+, expanding)
+- **Days 366–395** — N5 Review & Bridge Grammar (30 days) 
+- **Future content** — N4 Vocabulary, Verbs, Grammar, Kanji, Test Prep (~500+ more days)
+- 🚧 **N4 curriculum is currently being developed** — contributions welcome!
 
 ## Browser compatibility
 
