@@ -84,6 +84,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .main{padding:12px}
 }
 
+/* Stroke order */
+.stroke-toggle{margin-top:8px;padding:4px 10px;background:#f0f0f0;border:1px solid #ddd;border-radius:6px;font-size:0.7rem;cursor:pointer;color:#666;transition:all 0.2s;font-family:inherit}
+.stroke-toggle:hover{background:#e8e8e8;color:#333}
+.stroke-toggle.active{background:#3498db;color:#fff;border-color:#3498db}
+.stroke-viewer{margin-top:8px;padding:10px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;text-align:center}
+.stroke-viewer svg{max-width:100%;height:auto;max-height:120px}
+.stroke-loading{font-size:0.75rem;color:#999;padding:8px}
+.stroke-error{font-size:0.75rem;color:#e74c3c;padding:8px}
+
 /* Typing tip */
 .typing-tip-box{background:#eef6fd;border:1px solid #a8d4f5;border-radius:8px;padding:12px 16px}
 .typing-examples{font-family:'Courier New',monospace;font-size:0.95rem;color:#2c3e50;line-height:1.8;word-break:break-all}
@@ -289,6 +298,24 @@ function speak(text) {
   }
 }
 
+// ── Stroke Order ─────────────────────────────────────────────────────────────
+// Convert a kanji character to its Unicode hex filename (e.g., 一 → 04e00)
+function kanjiToUnicodeHex(char) {
+  var code = char.charCodeAt(0);
+  return code.toString(16).padStart(5, '0');
+}
+
+// Load stroke order SVG for a kanji character
+function loadStrokeOrderSvg(char) {
+  var hex = kanjiToUnicodeHex(char);
+  return fetch('kanji-svg/' + hex + '.svg')
+    .then(function(response) {
+      if (!response.ok) throw new Error('SVG not found');
+      return response.text();
+    });
+}
+
+
 
 
 // ── ReviewView ────────────────────────────────────────────────────────────────
@@ -457,6 +484,70 @@ function TypingTip(_ref8) {
   }, note), /*#__PURE__*/React.createElement("div", {
     className: "typing-hint"
   }, "Enable a Japanese IME first \u2014 Windows: Win+Space \xB7 Mac: Ctrl+Space (or globe key). Then type romaji and it converts automatically.")));
+}
+
+// ── CharCard with Stroke Order ───────────────────────────────────────────────
+function CharCard(_ref9a) {
+  var char = _ref9a.char,
+    isKanji = _ref9a.isKanji;
+  var _React$useState9a = React.useState(false),
+    _React$useState9b = _slicedToArray(_React$useState9a, 2),
+    showStroke = _React$useState9b[0],
+    setShowStroke = _React$useState9b[1];
+  var _React$useState9c = React.useState(null),
+    _React$useState9d = _slicedToArray(_React$useState9c, 2),
+    strokeSvg = _React$useState9d[0],
+    setStrokeSvg = _React$useState9d[1];
+  var _React$useState9e = React.useState(false),
+    _React$useState9f = _slicedToArray(_React$useState9e, 2),
+    loading = _React$useState9f[0],
+    setLoading = _React$useState9f[1];
+  var _React$useState9g = React.useState(false),
+    _React$useState9h = _slicedToArray(_React$useState9g, 2),
+    error = _React$useState9h[0],
+    setError = _React$useState9h[1];
+  
+  var toggleStroke = function() {
+    if (!showStroke && !strokeSvg && !error) {
+      setLoading(true);
+      loadStrokeOrderSvg(char[0])
+        .then(function(svg) {
+          setStrokeSvg(svg);
+          setShowStroke(true);
+          setLoading(false);
+          setError(false);
+        })
+        .catch(function() {
+          setError(true);
+          setLoading(false);
+        });
+    } else {
+      setShowStroke(!showStroke);
+    }
+  };
+  
+  return /*#__PURE__*/React.createElement("div", {
+    className: "char-card"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "char-jp"
+  }, char[0]), /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn speak-btn-char",
+    onClick: function() { return speak(char[0]); },
+    title: "Listen"
+  }, "\uD83D\uDD0A"), /*#__PURE__*/React.createElement("span", {
+    className: "char-reading"
+  }, char[1]), isKanji && /*#__PURE__*/React.createElement("button", {
+    className: "stroke-toggle" + (showStroke ? " active" : ""),
+    onClick: toggleStroke,
+    title: "Toggle stroke order"
+  }, showStroke ? "Hide strokes" : "📝 Strokes"), showStroke && strokeSvg && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-viewer",
+    dangerouslySetInnerHTML: { __html: strokeSvg }
+  }), loading && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-loading"
+  }, "Loading..."), error && /*#__PURE__*/React.createElement("div", {
+    className: "stroke-error"
+  }, "Stroke order not available"));
 }
 
 // ── Exercises ────────────────────────────────────────────────────────────────
@@ -848,20 +939,11 @@ function DayView(_ref0) {
   }, t('section_characters', dayNum)), /*#__PURE__*/React.createElement("div", {
     className: "chars-table"
   }, lesson.chars.map(function (c, i) {
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement(CharCard, {
       key: i,
-      className: "char-card"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "char-jp"
-    }, c[0]), /*#__PURE__*/React.createElement("button", {
-      className: "speak-btn speak-btn-char",
-      onClick: function onClick() {
-        return speak(c[0]);
-      },
-      title: "Listen"
-    }, "\uD83D\uDD0A"), /*#__PURE__*/React.createElement("span", {
-      className: "char-reading"
-    }, c[1]));
+      char: c,
+      isKanji: lesson.type === 'kanji'
+    });
   }))), /*#__PURE__*/React.createElement(TypingTip, {
     lesson: lesson
   }), lesson.vocab && lesson.vocab.length > 0 && /*#__PURE__*/React.createElement("div", {
