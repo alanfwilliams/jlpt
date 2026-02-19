@@ -2,7 +2,7 @@
 
 ## Project overview
 
-A free, self-contained, zero-dependency interactive Japanese course from zero to JLPT N5 in 365 days.
+A free, self-contained, zero-dependency interactive Japanese course from zero to JLPT N3 in 960 days (N5 + N4 + N3 complete; N2/N1 planned).
 Everything runs in the browser with no build step and no installation required.
 
 ## Repository structure
@@ -10,10 +10,11 @@ Everything runs in the browser with no build step and no installation required.
 ```
 jlpt-n5/
 ├── index.html          # Application shell — React components + localStorage logic
-├── curriculum.js       # 365-day lesson data array + phase colour/name constants
+├── curriculum.js       # 960-day lesson data array + phase colour/name constants
 ├── lib.js              # Pure utility functions: SM-2, card helpers, exercises
 ├── tests.html          # QUnit browser test suite (open directly, no server)
 ├── README.md           # User-facing documentation
+├── N3-N2-N1-REQUIREMENTS.md  # Implementation plan for N2/N1 (N3 complete)
 └── .nojekyll           # Disables Jekyll processing for GitHub Pages
 ```
 
@@ -56,7 +57,7 @@ the test suite reports failures.
 
 ### Running tests
 
-**In the browser (full suite, 92 tests):**
+**In the browser (full suite):**
 ```
 open tests.html        # macOS
 xdg-open tests.html    # Linux
@@ -67,7 +68,7 @@ xdg-open tests.html    # Linux
 node .claude/hooks/run-tests.js
 ```
 
-### Test coverage — 12 modules
+### Test coverage — 14 modules
 
 | Module | What is tested |
 |---|---|
@@ -82,37 +83,42 @@ node .claude/hooks/run-tests.js
 | `srsReview` | Quality→grade mapping, EF clamp, no mutation, new object |
 | `srsAddCards` | Embedded card data, no-overwrite, bool return value |
 | `srsDueCards` | Returns objects not IDs, due/not-due filtering |
-| **Curriculum integrity** | 365 sequential days, required fields, type validity, vocab/chars structure, phase/week ranges |
-
-### Known failing tests (data bugs to fix)
-
-The test suite currently flags 5 real data bugs in `curriculum.js`.  These tests
-will fail until the underlying data is corrected:
-
-| Days | Bug |
-|---|---|
-| 85 | `type` field is an array instead of a string |
-| 86–97 | `vocab` entries are 2-element `[jp, en]` instead of `[jp, reading, en]` |
-| 253–308 | `vocab[1][2]` (meaning) is an empty string on kanji days |
-| 173 | `chars[4]` is a 3-element array instead of the expected 2-element |
-| 365 | `week = 53` (calendar weeks only go to 52) |
+| **Curriculum integrity** | 960 sequential days, required fields, type validity, vocab/chars structure, phase/week ranges, N5/N4/N3 boundary checks |
+| **Phase constants** | PHASE_COLORS, PHASE_BG, PHASE_NAMES defined and correct for all 20 active phases |
+| **React render** | index.html inline script executes, App/DayView/Overview/ReviewMode render without error |
 
 ## Curriculum structure
 
-| Days      | Phase                                              |
-|-----------|----------------------------------------------------|
-| 1–14      | Hiragana (46 characters)                           |
-| 15–28     | Katakana (46 characters)                           |
-| 29–84     | Foundations (numbers, particles, basic sentences)  |
-| 85–140    | Core N5 Vocabulary (~200 words)                    |
-| 141–182   | Essential Verbs (て-form, ます-form, conjugation)  |
-| 183–252   | Grammar Patterns (particles, conditionals, keigo)  |
-| 253–308   | Kanji (~100 N5 kanji)                              |
-| 309–365   | Review & JLPT Test Prep                            |
+| Days      | Phase | Name                                               |
+|-----------|-------|----------------------------------------------------|
+| 1–14      | 1     | Hiragana (46 characters)                           |
+| 15–28     | 2     | Katakana (46 characters)                           |
+| 29–84     | 3     | Foundations (numbers, particles, basic sentences)  |
+| 85–140    | 4     | Vocabulary (~200 N5 words)                         |
+| 141–182   | 5     | Verbs (て-form, ます-form, conjugation)            |
+| 183–252   | 6     | Grammar Patterns (particles, conditionals, keigo)  |
+| 253–308   | 7     | Kanji (~100 N5 kanji)                              |
+| 309–365   | 8     | Test Prep (N5 review & JLPT prep)                  |
+| 366–395   | 9     | N5 Review (bridge to N4)                           |
+| 396–455   | 10    | N4 Vocabulary (~300 words)                         |
+| 456–500   | 11    | N4 Verbs                                           |
+| 501–555   | 12    | N4 Grammar Patterns                                |
+| 556–620   | 13    | N4 Kanji (~175 kanji)                              |
+| 621–660   | 14    | N4 Test Prep                                       |
+| 661–690   | 15    | N4 Review (bridge to N3)                           |
+| 691–770   | 16    | N3 Vocabulary (~1,500 words)                       |
+| 771–820   | 17    | N3 Verbs & Adjectives                              |
+| 821–895   | 18    | N3 Grammar Patterns (~120 patterns)                |
+| 896–930   | 19    | N3 Kanji (~170 kanji)                              |
+| 931–960   | 20    | N3 Test Prep                                       |
+
+Phase constants for N2 (phases 21–26) and N1 (phases 27–32) are defined in
+`curriculum.js` but lesson data for those levels has not yet been added.
+See `N3-N2-N1-REQUIREMENTS.md` for the full N2/N1 implementation plan.
 
 ## Key implementation notes
 
-- All 365 day definitions live in `curriculum.js` as a `curriculum` array
+- All 960 day definitions live in `curriculum.js` — the first 365 as a JSON array literal, days 366–960 appended via `curriculum.push()` calls
 - Two SM-2 implementations exist side-by-side: `sm2Update` (older, used by `ReviewView`) and `srsReview` (newer, used by `ReviewMode` + `App`). Both use `ease`/`ef` for the same concept.
 - Quiz state, SRS card data, and completed-day flags are stored in `localStorage`
 - The lesson view, overview calendar, and review flashcard deck are separate React components in `index.html`
