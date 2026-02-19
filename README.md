@@ -3,7 +3,7 @@
 A free, self-contained interactive Japanese course from zero to JLPT N3 level.
 **No install. No account. Just open `index.html` in any browser.**
 
-🔗 **Live:** [alanfwilliams.github.io/jlpt-n5](https://alanfwilliams.github.io/jlpt-n5)
+🔗 **Live:** [alanfwilliams.github.io/jlpt](https://alanfwilliams.github.io/jlpt)
 
 ---
 
