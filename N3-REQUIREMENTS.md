@@ -1,17 +1,21 @@
 # JLPT N3 / N2 / N1 — Implementation Requirements
 
-This document describes what needs to be built to extend the course from N4 (day 660) through JLPT N3, N2, and N1 readiness.
+> **Status:** N3 is fully implemented (days 661–960, phases 15–20, all tests passing).
+> This document now serves as the implementation plan for **N2 and N1** only.
+> N3 sections are retained for reference.
+
+This document describes what was built to extend the course through N3, and what remains to be built for N2 and N1 readiness.
 
 ---
 
 ## 1. Scope overview
 
-| Level | New Vocabulary | New Kanji | New Grammar | New Days | Day Range |
-|-------|---------------|-----------|-------------|----------|-----------|
-| N3 | ~1,500 words | ~170 kanji | ~120 patterns | 300 | 661–960 |
-| N2 | ~3,000 words | ~200 kanji | ~180 patterns | 360 | 961–1320 |
-| N1 | ~4,000 words | ~300 kanji | ~220 patterns | 400 | 1321–1720 |
-| **Total** | **~8,500 words** | **~670 kanji** | **~520 patterns** | **1,060** | **661–1720** |
+| Level | New Vocabulary | New Kanji | New Grammar | New Days | Day Range | Status |
+|-------|---------------|-----------|-------------|----------|-----------|--------|
+| N3 | ~1,500 words | ~170 kanji | ~120 patterns | 300 | 661–960 | ✅ Complete |
+| N2 | ~3,000 words | ~200 kanji | ~180 patterns | 360 | 961–1320 | Planned |
+| N1 | ~4,000 words | ~300 kanji | ~220 patterns | 400 | 1321–1720 | Planned |
+| **Total** | **~8,500 words** | **~670 kanji** | **~520 patterns** | **1,060** | **661–1720** | |
 
 **Cumulative totals at each level (including N5+N4 base):**
 
@@ -786,30 +790,31 @@ To maintain consistency across all 1720 days:
 
 ## 25. File changes summary
 
-| File | Changes |
-|------|---------|
-| `curriculum.js` | Add 1,060 new day objects (days 661–1720), add phases 15–32 to `PHASE_COLORS`, `PHASE_BG`, `PHASE_NAMES` |
-| `lib.js` | Add 11 new exercise types to `buildExercises()`, increase exercise caps, add furigana helper |
-| `index.html` | Passage rendering, furigana toggle, level selector/filter, reading exercise UI, per-level progress |
-| `tests.html` | Update day count to 1720, add phase 15–32 range checks, new exercise type tests, passage validation |
-| `CLAUDE.md` | Update curriculum structure table, test coverage table, phase listing, day count |
+| File | Changes | Status |
+|------|---------|--------|
+| `curriculum.js` | N3 days 661–960, phases 15–20 ✅; still needs N2/N1 days 961–1720, phases 21–32 | N3 done |
+| `lib.js` | Add 11 new exercise types to `buildExercises()`, increase exercise caps, add furigana helper | Planned |
+| `index.html` | Passage rendering, furigana toggle, level selector/filter, reading exercise UI, per-level progress | Planned |
+| `tests.html` | Update day count checks as levels are added, add phase range checks, new exercise type tests | Ongoing |
+| `CLAUDE.md` | Updated with 960-day curriculum structure and current test coverage | ✅ Done |
+| `README.md` | Updated with N5/N4/N3 curriculum overview | ✅ Done |
 
 ---
 
 ## 26. Implementation order
 
-### Phase A — N3 (days 661–960)
+### Phase A — N3 (days 661–960) ✅ Complete
 
-1. Phase constants 15–20 in `curriculum.js`
-2. N4 Review days (661–690)
-3. N3 Vocabulary days (691–770)
-4. N3 Verbs & Adjectives days (771–820)
-5. N3 Grammar days (821–895)
-6. N3 Kanji days (896–930)
-7. Reading comprehension feature (`passage` field, `DayView`, `buildExercises`)
-8. New exercise types: `reading`, `conjugation`, `pair_match`, `fill_blank`
-9. N3 Test Prep days (931–960)
-10. Tests for N3 content and features
+1. ✅ Phase constants 15–20 in `curriculum.js`
+2. ✅ N4 Review days (661–690)
+3. ✅ N3 Vocabulary days (691–770)
+4. ✅ N3 Verbs & Adjectives days (771–820)
+5. ✅ N3 Grammar days (821–895)
+6. ✅ N3 Kanji days (896–930)
+7. N3 reading comprehension feature (`passage` field, `DayView`, `buildExercises`) — planned
+8. New exercise types: `reading`, `conjugation`, `pair_match`, `fill_blank` — planned
+9. ✅ N3 Test Prep days (931–960)
+10. ✅ Tests for N3 curriculum data integrity
 
 ### Phase B — N2 (days 961–1320)
 
