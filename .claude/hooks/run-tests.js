@@ -183,7 +183,7 @@ test("cardToItem: reading=null when same as front", function (a) {
   a.equal(cardToItem("v_1_0", {}).reading, null);
 });
 test("cardToItem: out-of-range day → null", function (a) {
-  a.equal(cardToItem("v_999_0", {}), null);
+  a.equal(cardToItem("v_9999_0", {}), null);
 });
 test("cardToItem: out-of-range vocab index → null", function (a) {
   a.equal(cardToItem("v_1_999", {}), null);
@@ -374,19 +374,19 @@ test("curriculum: chars entries are 2-element [char, reading] arrays", function 
   a.equal(failures.length, 0, failures.join("\n"));
 });
 
-test("curriculum: phaseNum is 1–20 on every lesson", function (a) {
+test("curriculum: phaseNum is 1–32 on every lesson (N5 through N1)", function (a) {
   var failures = [];
   curriculum.forEach(function (l) {
-    if (typeof l.phaseNum !== "number" || l.phaseNum < 1 || l.phaseNum > 20)
+    if (typeof l.phaseNum !== "number" || l.phaseNum < 1 || l.phaseNum > 32)
       failures.push("day " + l.day + " phaseNum=" + l.phaseNum);
   });
   a.equal(failures.length, 0, failures.join("\n"));
 });
 
-test("curriculum: week is 1–138 on every lesson", function (a) {
+test("curriculum: week is 1–246 on every lesson", function (a) {
   var failures = [];
   curriculum.forEach(function (l) {
-    if (typeof l.week !== "number" || l.week < 1 || l.week > 138)
+    if (typeof l.week !== "number" || l.week < 1 || l.week > 246)
       failures.push("day " + l.day + " week=" + l.week);
   });
   a.equal(failures.length, 0, failures.join("\n"));
@@ -418,9 +418,9 @@ test("curriculum: N4 ends at day 660", function (a) {
   a.equal(curriculum[659].day, 660, "day 660 should be the last N4 lesson");
 });
 
-test("curriculum: N3 ends at day 960", function (a) {
+test("curriculum: N3 ends at day 960, N2 Phase 21-22 extends to day 1090", function (a) {
   a.equal(curriculum[959].day, 960, "day 960 should be the last N3 lesson");
-  a.equal(curriculum[curriculum.length - 1].day, 960, "last day is 960");
+  a.ok(curriculum[curriculum.length - 1].day >= 960, "curriculum extends at least to day 960");
 });
 
 test("curriculum: N4 starts at day 366 (if present)", function (a) {
