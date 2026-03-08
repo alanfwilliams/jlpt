@@ -661,7 +661,10 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
     },
     useEffect: function () {},
     useRef:    function () { return { current: null }; },
+    Component: function () {},
   };
+  global.React.Component.prototype.setState = function () {};
+  global.React.Component.prototype.render = function () { return null; };
   global.ReactDOM = {
     createRoot: function () { return { render: function () {} }; },
   };
@@ -716,6 +719,25 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
     try {
       ReviewMode({ cards: {}, dayNum: 1, onUpdate: noop });
       a.ok(true);
+    } catch (e) { a.ok(false, e.message); }
+  });
+
+  test("React render: ErrorBoundary renders children when no error", function (a) {
+    try {
+      var eb = new ErrorBoundary({ children: {} });
+      eb.state = { hasError: false, error: null };
+      eb.props = { children: {} };
+      var out = eb.render();
+      a.ok(out !== null && out !== undefined, "ErrorBoundary.render() returns children");
+    } catch (e) { a.ok(false, e.message); }
+  });
+
+  test("React render: ErrorBoundary getDerivedStateFromError sets hasError", function (a) {
+    try {
+      var err = new Error("test crash");
+      var state = ErrorBoundary.getDerivedStateFromError(err);
+      a.ok(state.hasError === true, "hasError is true");
+      a.ok(state.error === err, "error is set");
     } catch (e) { a.ok(false, e.message); }
   });
 }());

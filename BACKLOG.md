@@ -241,4 +241,6 @@ excessively long input, Unicode normalization differences, or mixed-script input
 
 ## Completed Tasks
 
-_Move tasks here as they are finished, with the date and a one-line summary._
+| Date | Task | Summary |
+|------|------|---------|
+| 2026-03-08 | Task 1 — Add React Error Boundary and Crash Recovery | Added `ErrorBoundary` class wrapping `<App>` in `index.html`; wraps crash in a recoverable UI with Reload and Reset buttons; 2 new tests in `run-tests.js` (107 total). |
