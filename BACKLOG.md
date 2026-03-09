@@ -239,8 +239,51 @@ excessively long input, Unicode normalization differences, or mixed-script input
 
 ---
 
+## Task 11 — Add Daily Review Cap
+
+**Priority:** MEDIUM | **Effort:** Low | **Category:** UX / SRS
+
+**Problem:** The review deck has no limit. On days when many cards are due
+(e.g. after a break), users face an overwhelming queue with no sense of
+when it will end. This can cause burnout and drop-off.
+
+**Files:**
+- `index.html` — ReviewMode component, App state
+
+**Implementation:**
+1. Add a `reviewCap` setting (default: 50) persisted to localStorage
+2. Slice `srsDueCards()` to at most `reviewCap` cards before starting the session
+3. Show "X cards remaining today" counter in the review header
+4. After finishing the capped session, show "Daily limit reached — come back tomorrow"
+   with a count of remaining due cards
+5. Add a settings toggle to temporarily raise or disable the cap
+6. Add tests: verify srsDueCards result is sliced correctly at cap boundary
+
+---
+
+## Task 12 — Keyboard Navigation for Day View
+
+**Priority:** MEDIUM | **Effort:** Low | **Category:** UX / Accessibility
+
+**Problem:** Users can only navigate between days by clicking the prev/next buttons.
+Keyboard users (and power users) have no way to move between days with arrow keys,
+or jump to a specific day using a number input.
+
+**Files:**
+- `index.html` — App component, keyboard event handling
+
+**Implementation:**
+1. Add a `keydown` listener on `window` in the App component (cleanup in useEffect return)
+2. ArrowLeft / ArrowRight → decrement / increment `dayNum` (clamped to 1–1720)
+3. Add `title="Previous day (←)"` and `title="Next day (→)"` to nav buttons
+4. Add a small "Jump to day" input in the Overview header that calls `setDayNum`
+5. Add tests: simulate keydown events and verify dayNum transitions
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
 |------|------|---------|
 | 2026-03-08 | Task 1 — Add React Error Boundary and Crash Recovery | Added `ErrorBoundary` class wrapping `<App>` in `index.html`; wraps crash in a recoverable UI with Reload and Reset buttons; 2 new tests in `run-tests.js` (107 total). |
+| 2026-03-08 | Task 2 — Handle localStorage Quota/Disabled Errors | Added `storageAvailable()` and `safeSave()` to `lib.js`; replaced all direct `localStorage.setItem` calls in `index.html` and `lib.js` with `safeSave`; added `storage-save-error` event dispatch; wired warning banner in App component; 3 new tests (110 total). |

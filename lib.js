@@ -460,6 +460,33 @@ function checkTyping(userAns, answers) {
   });
 }
 
+// ── Storage helpers ──────────────────────────────────────────────────────────
+function storageAvailable() {
+  try {
+    var test = '__storage_test__';
+    localStorage.setItem(test, '1');
+    localStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// safeSave: wraps localStorage.setItem; dispatches 'storage-save-error' event on failure.
+// Returns { ok: boolean, error: string|null }.
+function safeSave(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return { ok: true, error: null };
+  } catch (e) {
+    var msg = e && e.message ? e.message : String(e);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('storage-save-error', { detail: msg }));
+    }
+    return { ok: false, error: msg };
+  }
+}
+
 // ── SRS: SM-2 ───────────────────────────────────────────────────────────────
 var SRS_KEY = 'n5_srs';
 function srsLoad() {
@@ -470,9 +497,7 @@ function srsLoad() {
   }
 }
 function srsSave(cards) {
-  try {
-    localStorage.setItem(SRS_KEY, JSON.stringify(cards));
-  } catch (e) {}
+  safeSave(SRS_KEY, JSON.stringify(cards));
 }
 function srsAddCards(dayLesson, cards) {
   var changed = false;

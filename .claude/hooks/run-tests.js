@@ -742,6 +742,48 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
   });
 }());
 
+// ── safeSave / storageAvailable ───────────────────────────────────────────────
+(function () {
+  // Minimal event emitter stubs for window (Node has no CustomEvent/dispatchEvent)
+  var _listeners = {};
+  global.window.addEventListener = function (type, fn) {
+    (_listeners[type] = _listeners[type] || []).push(fn);
+  };
+  global.window.removeEventListener = function (type, fn) {
+    _listeners[type] = (_listeners[type] || []).filter(function (f) { return f !== fn; });
+  };
+  global.window.dispatchEvent = function (evt) {
+    (_listeners[evt.type] || []).forEach(function (fn) { fn(evt); });
+  };
+  global.CustomEvent = function (type, init) { this.type = type; this.detail = init && init.detail; };
+
+  test("safeSave: returns ok:true on success", function (a) {
+    var result = safeSave('__test_safesave__', 'hello');
+    a.equal(result.ok, true, "ok is true");
+    a.equal(result.error, null, "error is null");
+  });
+
+  test("safeSave: returns ok:false and fires event when setItem throws", function (a) {
+    var fired = false;
+    global.window.addEventListener('storage-save-error', function onErr() {
+      fired = true;
+      global.window.removeEventListener('storage-save-error', onErr);
+    });
+    var orig = localStorage.setItem;
+    localStorage.setItem = function () { throw new Error("QuotaExceededError"); };
+    var result = safeSave('__test_fail__', 'x');
+    localStorage.setItem = orig;
+    a.equal(result.ok, false, "ok is false on failure");
+    a.ok(result.error, "error message is set");
+    a.ok(fired, "storage-save-error event was dispatched");
+  });
+
+  test("storageAvailable: returns boolean", function (a) {
+    var avail = storageAvailable();
+    a.ok(typeof avail === 'boolean', "returns a boolean");
+  });
+}());
+
 // ── summary ───────────────────────────────────────────────────────────────────
 var total = _pass + _fail;
 if (_fail === 0) {
