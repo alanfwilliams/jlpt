@@ -72,27 +72,6 @@ no warning.
 
 ---
 
-## Task 3 — Add Accessibility Attributes
-
-**Priority:** HIGH | **Effort:** Medium | **Category:** Accessibility
-
-**Problem:** No `aria-label`, `role`, or `tabindex` attributes on interactive
-elements. Screen reader users cannot navigate the app.
-
-**Files:**
-- `index.html` — all React component `createElement` calls
-
-**Implementation (incremental — can be split across multiple PRs):**
-1. **Speak buttons:** Add `aria-label="Listen to pronunciation"` to all TTS buttons
-2. **Quiz buttons:** Add `role="button"` and `aria-label` with the answer text
-3. **Feedback messages:** Add `aria-live="polite"` to exercise result text
-4. **Navigation:** Add `role="navigation"` to header, `role="main"` to content area
-5. **Review cards:** Make card flippable via Enter/Space key (add `tabIndex={0}`
-   and `onKeyDown` handler)
-6. **Overview calendar:** Add `aria-label` to day cells with day number and status
-7. Verify with a screen reader or axe-core
-
----
 
 ## Task 4 — Sanitize SVG in dangerouslySetInnerHTML
 
@@ -281,9 +260,32 @@ or jump to a specific day using a number input.
 
 ---
 
+## Task 13 — Add Keyboard Shortcut Reference Panel
+
+**Priority:** LOW | **Effort:** Low | **Category:** UX / Accessibility
+
+**Problem:** Keyboard shortcuts now exist (arrow keys for review cards, Enter/Space
+to flip) but are undiscoverable. Users with keyboards have no indication these
+shortcuts exist.
+
+**Files:**
+- `index.html` — App component, DayView nav-bar, ReviewMode
+
+**Implementation:**
+1. Add a small "?" button in the top-right header that toggles a keyboard
+   shortcuts modal/popover
+2. The modal lists: Arrow keys = prev/next day (if implemented), Enter/Space =
+   flip review card, Tab = move between interactive elements
+3. Store dismissed state in localStorage so it auto-shows once on first visit
+4. Add `aria-label="Keyboard shortcuts"` and `aria-haspopup="dialog"` to the
+   button, and `role="dialog"` to the panel
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
 |------|------|---------|
 | 2026-03-08 | Task 1 — Add React Error Boundary and Crash Recovery | Added `ErrorBoundary` class wrapping `<App>` in `index.html`; wraps crash in a recoverable UI with Reload and Reset buttons; 2 new tests in `run-tests.js` (107 total). |
 | 2026-03-08 | Task 2 — Handle localStorage Quota/Disabled Errors | Added `storageAvailable()` and `safeSave()` to `lib.js`; replaced all direct `localStorage.setItem` calls in `index.html` and `lib.js` with `safeSave`; added `storage-save-error` event dispatch; wired warning banner in App component; 3 new tests (110 total). |
+| 2026-03-09 | Task 3 — Add Accessibility Attributes | Added `aria-label` to all TTS speak buttons; added `aria-live="polite"` + `role="status"` to exercise feedback; added `tabIndex`, `onKeyDown` (Enter/Space) to both review card components; added `role="progressbar"` + `aria-value*` to progress bar; added `title` to nav prev/next buttons; added `role="button"`, `tabIndex`, `aria-label`, `onKeyDown` to overview calendar cells; added `role="navigation"` to view-buttons container. 110 tests still passing. |

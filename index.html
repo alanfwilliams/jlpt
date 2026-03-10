@@ -430,6 +430,11 @@ function ReviewView(_ref6) {
     className: "review-card",
     onClick: function onClick() {
       return setFlipped(true);
+    },
+    tabIndex: 0,
+    'aria-label': flipped ? "Card revealed" : "Click or press Enter to reveal answer",
+    onKeyDown: function onKeyDown(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(true); }
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "review-char"
@@ -438,7 +443,8 @@ function ReviewView(_ref6) {
     onClick: function onClick(e) {
       e.stopPropagation();
       speak(item.front);
-    }
+    },
+    'aria-label': "Listen to pronunciation of " + item.front
   }, "\uD83D\uDD0A"), !flipped && /*#__PURE__*/React.createElement("div", {
     className: "review-tap"
   }, t('tap_reveal', dayNum)), flipped && /*#__PURE__*/React.createElement("div", {
@@ -567,7 +573,8 @@ function CharCard(_ref9a) {
   }, char[0]), /*#__PURE__*/React.createElement("button", {
     className: "speak-btn speak-btn-char",
     onClick: function() { return speak(char[0]); },
-    title: "Listen"
+    title: "Listen to pronunciation",
+    'aria-label': "Listen to pronunciation of " + char[0]
   }, "\uD83D\uDD0A"), /*#__PURE__*/React.createElement("span", {
     className: "char-reading"
   }, char[1]), isKanji && /*#__PURE__*/React.createElement("button", {
@@ -722,7 +729,8 @@ function Exercises(_ref9) {
       className: "ex-listen-btn",
       onClick: function onClick() {
         return speak(ex.audio);
-      }
+      },
+      'aria-label': "Listen to audio"
     }, "\uD83D\uDD0A Play")) : ex.question && /*#__PURE__*/React.createElement("div", {
       className: "ex-question"
     }, ex.question), /*#__PURE__*/React.createElement("div", {
@@ -784,7 +792,9 @@ function Exercises(_ref9) {
     onClick: handleCheck,
     disabled: !answer.trim() || revealed
   }, t('check_btn', lesson.day))), revealed && /*#__PURE__*/React.createElement("div", {
-    className: "ex-feedback ".concat(isRight ? 'correct' : 'wrong')
+    className: "ex-feedback ".concat(isRight ? 'correct' : 'wrong'),
+    'aria-live': "polite",
+    role: "status"
   }, isRight ? '✓ Correct!' : "\u2717  Answer: ".concat(ex.answers[0]))));
 }
 
@@ -879,14 +889,21 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "progress-wrap"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "progress-bar"
+    className: "progress-bar",
+    role: "progressbar",
+    'aria-valuenow': pct,
+    'aria-valuemin': 0,
+    'aria-valuemax': 100,
+    'aria-label': "Course progress: " + pct + "%"
   }, /*#__PURE__*/React.createElement("div", {
     className: "progress-fill",
     style: {
       width: pct + '%'
     }
   })), /*#__PURE__*/React.createElement("span", null, completed.size, " / ", totalDays)), /*#__PURE__*/React.createElement("div", {
-    className: "view-btns"
+    className: "view-btns",
+    role: "navigation",
+    'aria-label': "View navigation"
   }, /*#__PURE__*/React.createElement("button", {
     className: "view-btn ".concat(view === 'day' ? 'active' : ''),
     onClick: function onClick() {
@@ -1022,7 +1039,8 @@ function DayView(_ref0) {
         onClick: function onClick() {
           return speak(v[0]);
         },
-        title: "Listen"
+        title: "Listen to pronunciation",
+        'aria-label': "Listen to " + v[0]
       }, "\uD83D\uDD0A")), hasReadings && !hasKanji(v[0]) && /*#__PURE__*/React.createElement("td", null, v[1]), hasReadings && hasKanji(v[0]) && /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null, v[2]));
     })));
   }()), lesson.grammar && lesson.grammar.pattern && /*#__PURE__*/React.createElement("div", {
@@ -1090,7 +1108,8 @@ function DayView(_ref0) {
     onClick: function onClick() {
       return setDay(Math.max(1, dayNum - 1));
     },
-    disabled: dayNum === 1
+    disabled: dayNum === 1,
+    title: "Previous day (←)"
   }, t('nav_prev', dayNum)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "day-counter"
   }, t('day_label', dayNum), " ", dayNum, " / ", totalDays), /*#__PURE__*/React.createElement("button", {
@@ -1101,7 +1120,8 @@ function DayView(_ref0) {
     onClick: function onClick() {
       return setDay(Math.min(totalDays, dayNum + 1));
     },
-    disabled: dayNum === totalDays
+    disabled: dayNum === totalDays,
+    title: "Next day (→)"
   }, t('nav_next', dayNum))));
 }
 function ReviewMode(_ref1) {
@@ -1158,6 +1178,11 @@ function ReviewMode(_ref1) {
     className: "review-card",
     onClick: function onClick() {
       return !flipped && setFlipped(true);
+    },
+    tabIndex: 0,
+    'aria-label': flipped ? "Card revealed" : "Click or press Enter to reveal answer",
+    onKeyDown: function onKeyDown(e) {
+      if ((e.key === 'Enter' || e.key === ' ') && !flipped) { e.preventDefault(); setFlipped(true); }
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "review-card-type"
@@ -1172,7 +1197,8 @@ function ReviewMode(_ref1) {
     onClick: function onClick(e) {
       e.stopPropagation();
       speak(card.front);
-    }
+    },
+    'aria-label': "Listen to pronunciation of " + card.front
   }, "\uD83D\uDD0A")), flipped ? /*#__PURE__*/React.createElement("div", {
     className: "review-card-back"
   }, card.reading && card.reading !== card.front && /*#__PURE__*/React.createElement("div", {
@@ -1299,7 +1325,13 @@ function Overview(_ref10) {
       onClick: function onClick() {
         return setDay(d);
       },
-      title: "Day ".concat(d, ": ").concat(lesson.title)
+      title: "Day ".concat(d, ": ").concat(lesson.title),
+      'aria-label': "Day " + d + ": " + lesson.title + (isDone ? ", completed" : isCurrent ? ", current day" : ""),
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: function onKeyDown(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDay(d); }
+      }
     }, isDone ? '✓' : d);
   })));
 }
