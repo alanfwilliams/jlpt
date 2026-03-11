@@ -784,6 +784,55 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
   });
 }());
 
+// ── sanitizeSvg ───────────────────────────────────────────────────────────────
+(function () {
+  test("sanitizeSvg: passes clean SVG through unchanged", function (a) {
+    var clean = '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>';
+    a.equal(sanitizeSvg(clean), clean, "clean SVG unchanged");
+  });
+
+  test("sanitizeSvg: strips <script> blocks", function (a) {
+    var svg = '<svg><script>alert(1)</script><path d="M0 0"/></svg>';
+    var result = sanitizeSvg(svg);
+    a.ok(result.indexOf('<script>') === -1, "script tag removed");
+    a.ok(result.indexOf('alert') === -1, "script content removed");
+    a.ok(result.indexOf('<path') !== -1, "legitimate content preserved");
+  });
+
+  test("sanitizeSvg: strips on* event attributes", function (a) {
+    var svg = '<svg><circle onclick="alert(1)" cx="10" cy="10" r="5"/></svg>';
+    var result = sanitizeSvg(svg);
+    a.ok(result.indexOf('onclick') === -1, "onclick removed");
+    a.ok(result.indexOf('<circle') !== -1, "element preserved");
+  });
+
+  test("sanitizeSvg: strips <foreignObject> blocks", function (a) {
+    var svg = '<svg><foreignObject><body><img src=x onerror=alert(1)></body></foreignObject><path d="M0 0"/></svg>';
+    var result = sanitizeSvg(svg);
+    a.ok(result.indexOf('foreignObject') === -1, "foreignObject removed");
+    a.ok(result.indexOf('<path') !== -1, "path preserved");
+  });
+
+  test("sanitizeSvg: strips javascript: href", function (a) {
+    var svg = '<svg><a href="javascript:alert(1)"><text>click</text></a></svg>';
+    var result = sanitizeSvg(svg);
+    a.ok(result.indexOf('javascript:') === -1, "javascript: href removed");
+  });
+
+  test("sanitizeSvg: strips <use> with external URL", function (a) {
+    var svg = '<svg><use href="https://evil.com/sprite.svg#arrow"/><path d="M0 0"/></svg>';
+    var result = sanitizeSvg(svg);
+    a.ok(result.indexOf('evil.com') === -1, "external use href removed");
+    a.ok(result.indexOf('<path') !== -1, "path preserved");
+  });
+
+  test("sanitizeSvg: returns empty string for null/undefined input", function (a) {
+    a.equal(sanitizeSvg(null), '', "null → empty string");
+    a.equal(sanitizeSvg(undefined), '', "undefined → empty string");
+    a.equal(sanitizeSvg(''), '', "empty string → empty string");
+  });
+}());
+
 // ── summary ───────────────────────────────────────────────────────────────────
 var total = _pass + _fail;
 if (_fail === 0) {

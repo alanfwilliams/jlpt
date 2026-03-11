@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
 <title>日本語 N5–N1 Course</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -552,7 +553,7 @@ function CharCard(_ref9a) {
       setLoading(true);
       loadStrokeOrderSvg(char[0])
         .then(function(svg) {
-          setStrokeSvg(svg);
+          setStrokeSvg(sanitizeSvg(svg));
           setShowStroke(true);
           setLoading(false);
           setError(false);

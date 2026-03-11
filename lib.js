@@ -487,6 +487,25 @@ function safeSave(key, value) {
   }
 }
 
+// ── SVG sanitization ─────────────────────────────────────────────────────────
+// Strips XSS vectors from untrusted SVG strings before injecting into the DOM.
+// Regex-based (no DOMParser) so it works headlessly in Node test environments.
+function sanitizeSvg(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  var out = raw;
+  // Remove <script> blocks
+  out = out.replace(/<script[\s\S]*?<\/script>/gi, '');
+  // Remove event handler attributes (onclick, onload, onerror, …)
+  out = out.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+  // Remove <foreignObject> blocks (can embed arbitrary HTML)
+  out = out.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '');
+  // Remove javascript: href values
+  out = out.replace(/href\s*=\s*["']?\s*javascript:[^"'\s>]*/gi, '');
+  // Remove <use> tags referencing external URLs (SVG sprite injection)
+  out = out.replace(/<use[^>]*(?:href|xlink:href)\s*=\s*["'][^"']*:\/\/[^"']*["'][^>]*>/gi, '');
+  return out;
+}
+
 // ── SRS: SM-2 ───────────────────────────────────────────────────────────────
 var SRS_KEY = 'n5_srs';
 function srsLoad() {

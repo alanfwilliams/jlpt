@@ -73,30 +73,6 @@ no warning.
 ---
 
 
-## Task 4 — Sanitize SVG in dangerouslySetInnerHTML
-
-**Priority:** MEDIUM | **Effort:** Low | **Category:** Security
-
-**Problem:** Line ~579 uses `dangerouslySetInnerHTML` for stroke order SVGs
-fetched via `fetch()`. While currently fetched from a known source, this is a
-latent XSS vector.
-
-**Files:**
-- `index.html` — `CharCard` component (line ~579), `loadStrokeOrderSvg` (line ~343)
-
-**Implementation:**
-1. Add a `sanitizeSvg(raw)` function that:
-   - Parses with DOMParser
-   - Removes `<script>`, `on*` attributes, `<foreignObject>`, `<use>` with external hrefs
-   - Returns the cleaned SVG string
-2. Call `sanitizeSvg` on the fetch result before passing to `dangerouslySetInnerHTML`
-3. Add a Content-Security-Policy `<meta>` tag to `index.html`:
-   ```html
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline';">
-   ```
-4. Add tests: pass SVG with `<script>` tag, verify it is stripped
-
----
 
 ## Task 5 — Graceful SVG Network Failure Handling
 
@@ -282,6 +258,31 @@ shortcuts exist.
 
 ---
 
+## Task 14 — Show SRS Statistics Dashboard
+
+**Priority:** MEDIUM | **Effort:** Low | **Category:** UX / Motivation
+
+**Problem:** Users have no visibility into their SRS deck health. They can't see
+how many cards they have total, how many are mature vs. new, or their retention
+rate over time. This makes it hard to gauge progress beyond the day counter.
+
+**Files:**
+- `index.html` — Overview component or a new `StatsPanel` component
+
+**Implementation:**
+1. Add a `srsStats(srs)` function to `lib.js`:
+   - Returns `{ total, new_, learning, mature, dueToday, avgEF }` where
+     `new_` = cards with interval 0, `learning` = interval 1–20,
+     `mature` = interval > 20
+2. Render a small stats row in the Overview (above the calendar grid) showing
+   these counts as pill badges
+3. Add a "retention" indicator: percentage of reviews in the last 30 days
+   that had quality ≥ 3 (requires logging review outcomes — store in localStorage
+   as a rolling window of `{ date, grade }` entries, capped at 500 entries)
+4. Add tests for `srsStats`: verify counts from a fixture SRS object
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -289,3 +290,4 @@ shortcuts exist.
 | 2026-03-08 | Task 1 — Add React Error Boundary and Crash Recovery | Added `ErrorBoundary` class wrapping `<App>` in `index.html`; wraps crash in a recoverable UI with Reload and Reset buttons; 2 new tests in `run-tests.js` (107 total). |
 | 2026-03-08 | Task 2 — Handle localStorage Quota/Disabled Errors | Added `storageAvailable()` and `safeSave()` to `lib.js`; replaced all direct `localStorage.setItem` calls in `index.html` and `lib.js` with `safeSave`; added `storage-save-error` event dispatch; wired warning banner in App component; 3 new tests (110 total). |
 | 2026-03-09 | Task 3 — Add Accessibility Attributes | Added `aria-label` to all TTS speak buttons; added `aria-live="polite"` + `role="status"` to exercise feedback; added `tabIndex`, `onKeyDown` (Enter/Space) to both review card components; added `role="progressbar"` + `aria-value*` to progress bar; added `title` to nav prev/next buttons; added `role="button"`, `tabIndex`, `aria-label`, `onKeyDown` to overview calendar cells; added `role="navigation"` to view-buttons container. 110 tests still passing. |
+| 2026-03-10 | Task 4 — Sanitize SVG before DOM injection | Added `sanitizeSvg()` to `lib.js` (strips script tags, on* event attrs, foreignObject, javascript: hrefs, external use-element refs); wired into SVG loader in `index.html`; added Content-Security-Policy meta tag; 7 new tests (117 total). |
