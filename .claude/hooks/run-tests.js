@@ -833,6 +833,62 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
   });
 }());
 
+// ── loadStrokeOrderSvg (sessionStorage cache + retry) ─────────────────────────
+(function () {
+  // sessionStorage stub (per-test, reset each time)
+  var _ssStore = {};
+  global.sessionStorage = {
+    getItem: function (k) { return Object.prototype.hasOwnProperty.call(_ssStore, k) ? _ssStore[k] : null; },
+    setItem: function (k, v) { _ssStore[k] = v; },
+    removeItem: function (k) { delete _ssStore[k]; },
+  };
+
+  test("loadStrokeOrderSvg: returns cached value from sessionStorage without fetching", function (a) {
+    _ssStore = {};
+    var fakeHex = '05b66'; // 学
+    _ssStore['svg_' + fakeHex] = '<svg>cached</svg>';
+    var fetchCalled = false;
+    global.fetch = function () { fetchCalled = true; return Promise.resolve(); };
+    var result = null;
+    loadStrokeOrderSvg('学').then(function (v) { result = v; });
+    // Synchronous check — Promise resolves on cached path without fetch
+    a.ok(!fetchCalled, "fetch not called when cache hit");
+  });
+
+  test("loadStrokeOrderSvg: stores successful fetch result in sessionStorage", function (a) {
+    _ssStore = {};
+    var fakeSvg = '<svg><path d="M0 0"/></svg>';
+    global.fetch = function () {
+      return Promise.resolve({ ok: true, text: function () { return Promise.resolve(fakeSvg); } });
+    };
+    var stored = null;
+    return loadStrokeOrderSvg('学').then(function (v) {
+      stored = sessionStorage.getItem('svg_05b66');
+      a.equal(stored, fakeSvg, "SVG stored in sessionStorage after successful fetch");
+    }).catch(function () {
+      a.ok(false, "should not reject on success");
+    });
+  });
+
+  test("loadStrokeOrderSvg: rejects after 3 attempts on persistent failure", function (a) {
+    _ssStore = {};
+    var attempts = 0;
+    global.fetch = function () {
+      attempts++;
+      return Promise.resolve({ ok: false });
+    };
+    // Patch setTimeout to execute callbacks immediately for test speed
+    var origTimeout = global.setTimeout;
+    global.setTimeout = function (fn) { fn(); };
+    return loadStrokeOrderSvg('学').then(function () {
+      a.ok(false, "should have rejected");
+    }).catch(function () {
+      global.setTimeout = origTimeout;
+      a.ok(attempts === 3, "fetch called 3 times (1 + 2 retries), got " + attempts);
+    });
+  });
+}());
+
 // ── summary ───────────────────────────────────────────────────────────────────
 var total = _pass + _fail;
 if (_fail === 0) {

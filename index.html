@@ -94,7 +94,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stroke-viewer{margin-top:8px;padding:10px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;text-align:center}
 .stroke-viewer svg{max-width:100%;height:auto;max-height:120px}
 .stroke-loading{font-size:0.75rem;color:#999;padding:8px}
-.stroke-error{font-size:0.75rem;color:#e74c3c;padding:8px}
+.stroke-error{font-size:0.75rem;color:#e74c3c;padding:8px;text-align:center}
+.stroke-error-char{font-size:2.5rem;display:block;margin-bottom:4px}
+.stroke-retry-btn{margin-top:4px;padding:4px 12px;font-size:0.75rem;border:1px solid #e74c3c;background:#fff;color:#e74c3c;border-radius:4px;cursor:pointer}
+.stroke-retry-btn:hover{background:#fdf0f0}
 
 /* Typing tip */
 .typing-tip-box{background:#eef6fd;border:1px solid #a8d4f5;border-radius:8px;padding:12px 16px}
@@ -340,14 +343,36 @@ function kanjiToUnicodeHex(char) {
   return code.toString(16).padStart(5, '0');
 }
 
-// Load stroke order SVG for a kanji character
+// Load stroke order SVG for a kanji character (sessionStorage cache + 2 retries)
 function loadStrokeOrderSvg(char) {
   var hex = kanjiToUnicodeHex(char);
-  return fetch('kanji-svg/' + hex + '.svg')
-    .then(function(response) {
-      if (!response.ok) throw new Error('SVG not found');
-      return response.text();
-    });
+  var cacheKey = 'svg_' + hex;
+  try {
+    var cached = sessionStorage.getItem(cacheKey);
+    if (cached) return Promise.resolve(cached);
+  } catch(e) {}
+
+  function attempt(n) {
+    return fetch('kanji-svg/' + hex + '.svg')
+      .then(function(response) {
+        if (!response.ok) throw new Error('SVG not found');
+        return response.text();
+      })
+      .then(function(svg) {
+        try { sessionStorage.setItem(cacheKey, svg); } catch(e) {}
+        return svg;
+      })
+      .catch(function(err) {
+        if (n < 2) {
+          var delay = n === 0 ? 1000 : 2000;
+          return new Promise(function(resolve, reject) {
+            setTimeout(function() { attempt(n + 1).then(resolve, reject); }, delay);
+          });
+        }
+        throw err;
+      });
+  }
+  return attempt(0);
 }
 
 
@@ -548,20 +573,24 @@ function CharCard(_ref9a) {
     error = _React$useState9h[0],
     setError = _React$useState9h[1];
   
+  var fetchStroke = function() {
+    setLoading(true);
+    setError(false);
+    loadStrokeOrderSvg(char[0])
+      .then(function(svg) {
+        setStrokeSvg(sanitizeSvg(svg));
+        setShowStroke(true);
+        setLoading(false);
+      })
+      .catch(function() {
+        setError(true);
+        setLoading(false);
+      });
+  };
+
   var toggleStroke = function() {
     if (!showStroke && !strokeSvg && !error) {
-      setLoading(true);
-      loadStrokeOrderSvg(char[0])
-        .then(function(svg) {
-          setStrokeSvg(sanitizeSvg(svg));
-          setShowStroke(true);
-          setLoading(false);
-          setError(false);
-        })
-        .catch(function() {
-          setError(true);
-          setLoading(false);
-        });
+      fetchStroke();
     } else {
       setShowStroke(!showStroke);
     }
@@ -589,7 +618,9 @@ function CharCard(_ref9a) {
     className: "stroke-loading"
   }, "Loading..."), error && /*#__PURE__*/React.createElement("div", {
     className: "stroke-error"
-  }, "Stroke order not available"));
+  }, /*#__PURE__*/React.createElement("span", { className: "stroke-error-char" }, char[0]),
+    /*#__PURE__*/React.createElement("p", null, "Stroke order unavailable"),
+    /*#__PURE__*/React.createElement("button", { className: "stroke-retry-btn", onClick: fetchStroke }, "Retry")));
 }
 
 // ── Exercises ────────────────────────────────────────────────────────────────

@@ -74,25 +74,6 @@ no warning.
 
 
 
-## Task 5 — Graceful SVG Network Failure Handling
-
-**Priority:** MEDIUM | **Effort:** Low | **Category:** UX
-
-**Problem:** `loadStrokeOrderSvg` (line ~343-350) has a `.catch()` that sets
-error state but provides no retry, no fallback visual, and no caching.
-
-**Files:**
-- `index.html` — `loadStrokeOrderSvg` function, `CharCard` component
-
-**Implementation:**
-1. Add retry logic: 2 retries with 1s/2s delays
-2. Cache successful SVGs in `sessionStorage` (key: character code point)
-3. On final failure, show the character in large font with text "Stroke order
-   unavailable" instead of a blank area
-4. Add a "Retry" button in the error state
-
----
-
 ## Task 6 — Runtime Curriculum Validation
 
 **Priority:** MEDIUM | **Effort:** Low | **Category:** Reliability
@@ -283,6 +264,33 @@ rate over time. This makes it hard to gauge progress beyond the day counter.
 
 ---
 
+## Task 15 — Add Streak Counter and Streak Freeze
+
+**Priority:** MEDIUM | **Effort:** Low | **Category:** UX / Motivation
+
+**Problem:** The app has no streak tracking. Daily learners have no visible
+indication of their consecutive-day streak, which is a key motivation driver
+in language learning apps. Users who miss a day have no forgiveness mechanism.
+
+**Files:**
+- `index.html` — App component, Overview, header area
+- `lib.js` — add `computeStreak(completedSet)` helper
+
+**Implementation:**
+1. Add `computeStreak(completedDays)` in `lib.js`:
+   - `completedDays` is the Set of completed day numbers
+   - Determine today's calendar day from `new Date()`
+   - Walk backwards from today counting consecutive days that have a completed
+     lesson; stop at the first gap
+   - Return `{ current: number, longest: number }`
+2. Persist `longestStreak` and `streakFreezes` (integer, default 1) to localStorage
+3. Show a streak badge in the header: "🔥 5" (current streak)
+4. On the day after a missed day, if `streakFreezes > 0`, auto-apply one freeze
+   and show a "Streak saved by freeze!" toast for 3 seconds
+5. Add tests for `computeStreak` with fixture completed-day sets
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -291,3 +299,4 @@ rate over time. This makes it hard to gauge progress beyond the day counter.
 | 2026-03-08 | Task 2 — Handle localStorage Quota/Disabled Errors | Added `storageAvailable()` and `safeSave()` to `lib.js`; replaced all direct `localStorage.setItem` calls in `index.html` and `lib.js` with `safeSave`; added `storage-save-error` event dispatch; wired warning banner in App component; 3 new tests (110 total). |
 | 2026-03-09 | Task 3 — Add Accessibility Attributes | Added `aria-label` to all TTS speak buttons; added `aria-live="polite"` + `role="status"` to exercise feedback; added `tabIndex`, `onKeyDown` (Enter/Space) to both review card components; added `role="progressbar"` + `aria-value*` to progress bar; added `title` to nav prev/next buttons; added `role="button"`, `tabIndex`, `aria-label`, `onKeyDown` to overview calendar cells; added `role="navigation"` to view-buttons container. 110 tests still passing. |
 | 2026-03-10 | Task 4 — Sanitize SVG before DOM injection | Added `sanitizeSvg()` to `lib.js` (strips script tags, on* event attrs, foreignObject, javascript: hrefs, external use-element refs); wired into SVG loader in `index.html`; added Content-Security-Policy meta tag; 7 new tests (117 total). |
+| 2026-03-12 | Task 5 — Graceful SVG Network Failure Handling | Added `sessionStorage` caching to `loadStrokeOrderSvg`; added 2-retry logic (1s/2s delays); extracted `fetchStroke` helper in `CharCard`; error state now shows character in large font + "Stroke order unavailable" + Retry button; 3 new tests (120 total). |
