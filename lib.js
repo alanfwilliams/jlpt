@@ -583,3 +583,26 @@ function srsDueCards(cards) {
     return c.due <= now;
   });
 }
+
+// validateCurriculum: runtime sanity-check on the curriculum array.
+// Returns { valid: boolean, error: string|null }.
+function validateCurriculum(cur) {
+  if (!Array.isArray(cur)) return { valid: false, error: 'curriculum is not an array' };
+  if (cur.length !== 1720) return { valid: false, error: 'curriculum length is ' + cur.length + ', expected 1720' };
+  var required = ['day', 'title', 'type'];
+  var spots = [0, 1, 364, 365, 1719];
+  for (var i = 0; i < spots.length; i++) {
+    var idx = spots[i];
+    var lesson = cur[idx];
+    if (!lesson) return { valid: false, error: 'curriculum[' + idx + '] is missing' };
+    for (var j = 0; j < required.length; j++) {
+      if (lesson[required[j]] === undefined) {
+        return { valid: false, error: 'curriculum[' + idx + '] missing field: ' + required[j] };
+      }
+    }
+    if (lesson.day !== idx + 1) {
+      return { valid: false, error: 'curriculum[' + idx + '].day is ' + lesson.day + ', expected ' + (idx + 1) };
+    }
+  }
+  return { valid: true, error: null };
+}

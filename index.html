@@ -871,6 +871,14 @@ function App() {
     window.addEventListener('storage-save-error', handleStorageError);
     return function () { window.removeEventListener('storage-save-error', handleStorageError); };
   }, []);
+  var curriculumCheck = validateCurriculum(curriculum);
+  if (!curriculumCheck.valid) {
+    return React.createElement('div', { style: { padding: 40, textAlign: 'center', fontFamily: 'sans-serif' } },
+      React.createElement('h2', null, 'Curriculum failed to load'),
+      React.createElement('p', { style: { color: '#c00' } }, curriculumCheck.error),
+      React.createElement('button', { onClick: function() { location.reload(); } }, 'Reload')
+    );
+  }
   var lesson = curriculum[dayNum - 1];
   var pColor = PHASE_COLORS[lesson.phaseNum] || '#555';
   var pBg = PHASE_BG[lesson.phaseNum] || '#f8f9fa';

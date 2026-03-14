@@ -889,6 +889,42 @@ test("passage: all reading-type days have text_jp and text_en", function (a) {
   });
 }());
 
+// ── validateCurriculum ────────────────────────────────────────────────────────
+test("validateCurriculum: valid curriculum passes", function (a) {
+  var result = validateCurriculum(curriculum);
+  a.ok(result.valid, "real curriculum is valid");
+  a.equal(result.error, null, "no error on valid curriculum");
+});
+test("validateCurriculum: rejects non-array", function (a) {
+  var result = validateCurriculum(null);
+  a.ok(!result.valid, "null is invalid");
+  a.ok(result.error && result.error.length > 0, "error message provided");
+});
+test("validateCurriculum: rejects wrong length", function (a) {
+  var short = curriculum.slice(0, 5);
+  var result = validateCurriculum(short);
+  a.ok(!result.valid, "short array is invalid");
+  a.ok(result.error.indexOf('5') !== -1, "error mentions actual length");
+});
+test("validateCurriculum: rejects missing required field", function (a) {
+  var bad = curriculum.map(function (d, i) {
+    if (i === 0) { var copy = Object.assign({}, d); delete copy.title; return copy; }
+    return d;
+  });
+  var result = validateCurriculum(bad);
+  a.ok(!result.valid, "missing title field is invalid");
+  a.ok(result.error.indexOf('title') !== -1, "error mentions 'title'");
+});
+test("validateCurriculum: rejects wrong day number", function (a) {
+  var bad = curriculum.map(function (d, i) {
+    if (i === 0) return Object.assign({}, d, { day: 999 });
+    return d;
+  });
+  var result = validateCurriculum(bad);
+  a.ok(!result.valid, "wrong day number is invalid");
+  a.ok(result.error.indexOf('999') !== -1 || result.error.indexOf('day') !== -1, "error mentions day mismatch");
+});
+
 // ── summary ───────────────────────────────────────────────────────────────────
 var total = _pass + _fail;
 if (_fail === 0) {

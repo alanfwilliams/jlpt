@@ -13,88 +13,6 @@ files/lines, and a concrete implementation plan.
 
 ---
 
-## Task 1 — Add React Error Boundary and Crash Recovery
-
-**Priority:** HIGH | **Effort:** Low | **Category:** Reliability
-
-**Problem:** No error boundary exists. If any React component throws, the entire
-app goes blank with no recovery path. Users must hard-refresh and may not
-understand what happened.
-
-**Files:**
-- `index.html` — wrap App component (around line 1295)
-
-**Implementation:**
-1. Add an `ErrorBoundary` class component before the App definition:
-   ```js
-   class ErrorBoundary extends React.Component {
-     constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-     static getDerivedStateFromError(error) { return { hasError: true, error: error }; }
-     componentDidCatch(error, info) { console.error('App crash:', error, info); }
-     render() {
-       if (this.state.hasError) {
-         return React.createElement('div', { style: { padding: 40, textAlign: 'center' } },
-           React.createElement('h2', null, 'Something went wrong'),
-           React.createElement('p', null, this.state.error && this.state.error.message),
-           React.createElement('button', { onClick: function() { location.reload(); } }, 'Reload'),
-           React.createElement('button', { onClick: function() { localStorage.clear(); location.reload(); } }, 'Reset all data')
-         );
-       }
-       return this.props.children;
-     }
-   }
-   ```
-2. Wrap `<App />` in `<ErrorBoundary>` in the `ReactDOM.createRoot` call
-3. Add a test: render ErrorBoundary with a child that throws, assert fallback UI appears
-
----
-
-## Task 2 — Handle localStorage Quota/Disabled Errors
-
-**Priority:** HIGH | **Effort:** Low | **Category:** Data Safety
-
-**Problem:** `lsSave` (line ~309-312) and `srsSave` (line ~472-476) silently
-catch exceptions. If localStorage is full or disabled, users lose progress with
-no warning.
-
-**Files:**
-- `index.html` — `lsSave`, `srsSave`, and all `localStorage.setItem` calls
-
-**Implementation:**
-1. Create a `safeSave(key, value)` helper that wraps `localStorage.setItem` in
-   try/catch and returns `{ ok: boolean, error: string|null }`
-2. On failure, show a non-blocking notification bar at the top of the page:
-   "Unable to save progress — storage may be full or disabled"
-3. Add a `storageAvailable()` check at app startup; show a persistent warning
-   if localStorage is not available
-4. Replace all direct `localStorage.setItem` calls with `safeSave`
-5. Add test: mock `localStorage.setItem` to throw, verify `safeSave` returns error
-
----
-
-
-
-## Task 6 — Runtime Curriculum Validation
-
-**Priority:** MEDIUM | **Effort:** Low | **Category:** Reliability
-
-**Problem:** Tests validate curriculum structure, but no runtime check exists.
-If `curriculum.js` is corrupted or partially loaded, the app silently breaks.
-
-**Files:**
-- `index.html` — App component init
-- `lib.js` — add `validateCurriculum()` function
-
-**Implementation:**
-1. Add `validateCurriculum()` in `lib.js`:
-   - Check `curriculum.length === 1720`
-   - Spot-check first/last/boundary days have required fields
-   - Return `{ valid: boolean, error: string }`
-2. Call at App mount; if invalid, render an error message instead of the app
-3. Add test for `validateCurriculum` with valid and corrupted data
-
----
-
 ## Task 7 — Consolidate Duplicate Review Button Styles
 
 **Priority:** LOW | **Effort:** Low | **Category:** Code Quality
@@ -291,6 +209,29 @@ in language learning apps. Users who miss a day have no forgiveness mechanism.
 
 ---
 
+## Task 16 — Dark Mode Support
+
+**Priority:** LOW | **Effort:** Medium | **Category:** UX
+
+**Problem:** The app has no dark mode. Users studying at night are exposed to a
+bright white interface, which causes eye strain. Most modern browsers and OSes
+expose a `prefers-color-scheme` media query that apps should respect.
+
+**Files:**
+- `index.html` — `<style>` block, App component
+
+**Implementation:**
+1. Add a `@media (prefers-color-scheme: dark)` block to the `<style>` tag that
+   overrides background, text, border, and card colors
+2. Add a manual toggle button in the header that overrides the OS preference,
+   stored as `jlpt_theme` in localStorage (`'light'` | `'dark'` | `'auto'`)
+3. Apply the theme class (`data-theme="dark"`) to `<body>` so CSS can scope rules
+4. Ensure PHASE_COLORS remain readable in dark mode (lighten if needed using CSS
+   `filter: brightness()`)
+5. Add a test: verify `jlpt_theme` persisted value is read back on reload
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -300,3 +241,4 @@ in language learning apps. Users who miss a day have no forgiveness mechanism.
 | 2026-03-09 | Task 3 — Add Accessibility Attributes | Added `aria-label` to all TTS speak buttons; added `aria-live="polite"` + `role="status"` to exercise feedback; added `tabIndex`, `onKeyDown` (Enter/Space) to both review card components; added `role="progressbar"` + `aria-value*` to progress bar; added `title` to nav prev/next buttons; added `role="button"`, `tabIndex`, `aria-label`, `onKeyDown` to overview calendar cells; added `role="navigation"` to view-buttons container. 110 tests still passing. |
 | 2026-03-10 | Task 4 — Sanitize SVG before DOM injection | Added `sanitizeSvg()` to `lib.js` (strips script tags, on* event attrs, foreignObject, javascript: hrefs, external use-element refs); wired into SVG loader in `index.html`; added Content-Security-Policy meta tag; 7 new tests (117 total). |
 | 2026-03-12 | Task 5 — Graceful SVG Network Failure Handling | Added `sessionStorage` caching to `loadStrokeOrderSvg`; added 2-retry logic (1s/2s delays); extracted `fetchStroke` helper in `CharCard`; error state now shows character in large font + "Stroke order unavailable" + Retry button; 3 new tests (120 total). |
+| 2026-03-14 | Task 6 — Runtime Curriculum Validation | Added `validateCurriculum()` to `lib.js` (checks array type, length=1720, required fields, day-number integrity at spot positions); wired into App render in `index.html` to show error UI on failure; 5 new tests (125 total). |
