@@ -13,26 +13,6 @@ files/lines, and a concrete implementation plan.
 
 ---
 
-## Task 7 — Consolidate Duplicate Review Button Styles
-
-**Priority:** LOW | **Effort:** Low | **Category:** Code Quality
-
-**Problem:** Review button styles are defined in two places (lines ~157-160 and
-~181-185) with slightly different values. The SRS grade buttons also have
-hardcoded inline styles.
-
-**Files:**
-- `index.html` — `<style>` block
-
-**Implementation:**
-1. Audit all `.review-btn` and grade button styles
-2. Consolidate into a single CSS class hierarchy
-3. Remove duplicate declarations
-4. Extract hardcoded level colors (line ~1253: N5=#e91e8c, etc.) into CSS custom
-   properties that reference the `PHASE_COLORS` constants
-
----
-
 ## Task 8 — Add TTS Rate and Voice Controls
 
 **Priority:** LOW | **Effort:** Low | **Category:** UX
@@ -232,6 +212,32 @@ expose a `prefers-color-scheme` media query that apps should respect.
 
 ---
 
+## Task 17 — Add Lesson Completion Confirmation for Typing Exercises
+
+**Priority:** LOW | **Effort:** Low | **Category:** UX / Quality
+
+**Problem:** When a user finishes all exercises in a lesson that contains
+typing exercises, there is no visual confirmation of the answer before the
+lesson is marked complete. The final answer just disappears. This can feel
+abrupt, especially on correct answers that are only partial matches
+(e.g. accepted via the `/` alternative).
+
+**Files:**
+- `index.html` — `DayView` component, exercise rendering logic
+
+**Implementation:**
+1. After the last exercise answer is submitted, show a 1-second "✓ Correct!"
+   or "✗ Incorrect" flash on the final card before advancing to the
+   completion screen
+2. Reuse the existing `feedback` state pattern already used for per-exercise
+   feedback; add a `finishDelay` flag that gates the `onComplete()` call
+3. Ensure the delay is skipped if the user presses Enter again (impatient
+   fast-typers should not be blocked)
+4. Add tests: mock `onComplete` callback, verify it is not called before
+   the delay, and is called after
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -242,3 +248,4 @@ expose a `prefers-color-scheme` media query that apps should respect.
 | 2026-03-10 | Task 4 — Sanitize SVG before DOM injection | Added `sanitizeSvg()` to `lib.js` (strips script tags, on* event attrs, foreignObject, javascript: hrefs, external use-element refs); wired into SVG loader in `index.html`; added Content-Security-Policy meta tag; 7 new tests (117 total). |
 | 2026-03-12 | Task 5 — Graceful SVG Network Failure Handling | Added `sessionStorage` caching to `loadStrokeOrderSvg`; added 2-retry logic (1s/2s delays); extracted `fetchStroke` helper in `CharCard`; error state now shows character in large font + "Stroke order unavailable" + Retry button; 3 new tests (120 total). |
 | 2026-03-14 | Task 6 — Runtime Curriculum Validation | Added `validateCurriculum()` to `lib.js` (checks array type, length=1720, required fields, day-number integrity at spot positions); wired into App render in `index.html` to show error UI on failure; 5 new tests (125 total). |
+| 2026-03-15 | Task 7 — Consolidate Duplicate Review Button Styles | Added `:root` CSS custom properties for grade button colors (`--btn-again/hard/good/easy`) and level colors (`--level-n5/n4/n3/n2/n1`); removed duplicate `.review-btns`/`.review-btn` CSS block; added `.review-btns--3` modifier for ReviewView 3-column layout; added `LEVEL_COLORS` lookup object referencing `PHASE_COLORS` to replace ternary chain. 125 tests still passing. |

@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
 <style>
+:root{--btn-again:#e74c3c;--btn-hard:#e67e22;--btn-good:#27ae60;--btn-easy:#2980b9;--level-n5:#e91e8c;--level-n4:#1abc9c;--level-n3:#0984e3;--level-n2:#00cec9;--level-n1:#0652DD}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#2c3e50;min-height:100vh}
 .app{display:flex;flex-direction:column;min-height:100vh}
@@ -158,12 +159,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .review-card-hint{font-size:0.85rem;color:#bbb;font-style:italic}
 .review-flip-hint{text-align:center;font-size:0.78rem;color:#ccc;margin-top:8px}
 .review-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
-.review-btn{padding:12px 8px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.88rem;font-family:inherit;transition:opacity 0.15s,transform 0.1s}
+.review-btns--3{grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.review-btn{padding:12px 8px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:inherit;transition:opacity 0.15s,transform 0.1s}
 .review-btn:hover{opacity:0.85;transform:translateY(-1px)}
-.review-btn.again{background:#e74c3c;color:#fff}
-.review-btn.hard{background:#e67e22;color:#fff}
-.review-btn.good{background:#27ae60;color:#fff}
-.review-btn.easy{background:#2980b9;color:#fff}
+.review-btn.again{background:var(--btn-again);color:#fff}
+.review-btn.hard{background:var(--btn-hard);color:#fff}
+.review-btn.good{background:var(--btn-good);color:#fff}
+.review-btn.easy{background:var(--btn-easy);color:#fff}
 .review-empty{text-align:center;padding:60px 20px;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
 .review-empty-icon{font-size:3rem;margin-bottom:12px}
 .review-empty-title{font-size:1.3rem;font-weight:700;color:#2c3e50;margin-bottom:6px}
@@ -183,12 +185,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .review-back{border-top:1px solid #eee;padding-top:14px;width:100%}
 .review-answer{font-size:1.4rem;font-weight:600;color:#27ae60;margin-bottom:4px}
 .review-reading{font-size:0.9rem;color:#888}
-.review-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px}
-.review-btn{padding:12px;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;font-weight:700;font-family:inherit;transition:opacity 0.15s}
-.review-btn:hover{opacity:0.85}
-.review-btn.again{background:#e74c3c;color:#fff}
-.review-btn.good{background:#27ae60;color:#fff}
-.review-btn.easy{background:#3498db;color:#fff}
 .review-done{text-align:center;padding:40px 20px}
 .review-done-icon{font-size:3rem;margin-bottom:12px}
 .review-done-title{font-size:1.3rem;font-weight:700;color:#2c3e50;margin-bottom:6px}
@@ -232,6 +228,9 @@ rt{font-size:0.6em;color:#8e44ad;font-weight:400;letter-spacing:0.02em}
 <script>
 "use strict";
 
+
+// Level colors: first-phase color for each JLPT level, derived from PHASE_COLORS
+var LEVEL_COLORS = { N5: PHASE_COLORS[1], N4: PHASE_COLORS[10], N3: PHASE_COLORS[16], N2: PHASE_COLORS[22], N1: PHASE_COLORS[28] };
 
 // ── Progressive UI Translations ──────────────────────────────────────────────
 // As learning-related words are taught in the curriculum, the UI progressively
@@ -480,7 +479,7 @@ function ReviewView(_ref6) {
   }, item.back), item.reading && /*#__PURE__*/React.createElement("div", {
     className: "review-reading"
   }, item.reading))), flipped ? /*#__PURE__*/React.createElement("div", {
-    className: "review-btns"
+    className: "review-btns review-btns--3"
   }, /*#__PURE__*/React.createElement("button", {
     className: "review-btn again",
     onClick: function onClick() {
@@ -1327,7 +1326,7 @@ function Overview(_ref10) {
   // Per-level progress bars
   /*#__PURE__*/React.createElement("div", { className: "level-progress" }, levelProgress.map(function (lp) {
     if (lp.total === 0) return null;
-    var color = lp.key === 'N5' ? '#e91e8c' : lp.key === 'N4' ? '#1abc9c' : lp.key === 'N3' ? '#0984e3' : lp.key === 'N2' ? '#00cec9' : '#0652DD';
+    var color = LEVEL_COLORS[lp.key] || '#555';
     return /*#__PURE__*/React.createElement("div", { key: lp.key, className: "level-progress-item" },
       /*#__PURE__*/React.createElement("span", null, lp.label),
       /*#__PURE__*/React.createElement("div", { className: "level-progress-bar" },
