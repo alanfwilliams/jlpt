@@ -13,24 +13,6 @@ files/lines, and a concrete implementation plan.
 
 ---
 
-## Task 8 — Add TTS Rate and Voice Controls
-
-**Priority:** LOW | **Effort:** Low | **Category:** UX
-
-**Problem:** TTS rate is hardcoded to 0.85 (line ~322). Learners at different
-levels need different speeds. No voice selection is available.
-
-**Files:**
-- `index.html` — `speak()` function (line ~316-333), App header
-
-**Implementation:**
-1. Add a `speechRate` state (default 0.85) persisted to localStorage
-2. Add a small dropdown or slider in the header: 0.5x / 0.75x / 1.0x / 1.25x
-3. Pass `speechRate` to `utterance.rate` in the `speak()` function
-4. Optionally enumerate available Japanese voices and let user pick
-
----
-
 ## Task 9 — Add Export/Import Progress
 
 **Priority:** LOW | **Effort:** Medium | **Category:** UX
@@ -238,6 +220,30 @@ abrupt, especially on correct answers that are only partial matches
 
 ---
 
+## Task 18 — Add Lesson Notes / Personal Annotations
+
+**Priority:** LOW | **Effort:** Low | **Category:** UX / Learning
+
+**Problem:** Users cannot attach personal notes to a lesson day. When reviewing
+tricky grammar points or remembering mnemonics, there is no way to record
+thoughts alongside the lesson content. Notes live in separate apps and are
+disconnected from the course flow.
+
+**Files:**
+- `index.html` — `DayView` component
+
+**Implementation:**
+1. Add a collapsible "Notes" section at the bottom of `DayView` below the
+   vocab/char cards
+2. Use a `<textarea>` that saves on every `onChange` to
+   `jlpt_note_<dayNum>` in localStorage via `safeSave`
+3. Load note text on mount with a `useState` initializer reading localStorage
+4. Show a small badge on the day-number header if a note exists (non-empty)
+5. In Overview, render a dot indicator on calendar cells that have notes
+6. Add tests: verify note is saved and loaded correctly for a given day key
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -249,3 +255,4 @@ abrupt, especially on correct answers that are only partial matches
 | 2026-03-12 | Task 5 — Graceful SVG Network Failure Handling | Added `sessionStorage` caching to `loadStrokeOrderSvg`; added 2-retry logic (1s/2s delays); extracted `fetchStroke` helper in `CharCard`; error state now shows character in large font + "Stroke order unavailable" + Retry button; 3 new tests (120 total). |
 | 2026-03-14 | Task 6 — Runtime Curriculum Validation | Added `validateCurriculum()` to `lib.js` (checks array type, length=1720, required fields, day-number integrity at spot positions); wired into App render in `index.html` to show error UI on failure; 5 new tests (125 total). |
 | 2026-03-15 | Task 7 — Consolidate Duplicate Review Button Styles | Added `:root` CSS custom properties for grade button colors (`--btn-again/hard/good/easy`) and level colors (`--level-n5/n4/n3/n2/n1`); removed duplicate `.review-btns`/`.review-btn` CSS block; added `.review-btns--3` modifier for ReviewView 3-column layout; added `LEVEL_COLORS` lookup object referencing `PHASE_COLORS` to replace ternary chain. 125 tests still passing. |
+| 2026-03-16 | Task 8 — Add TTS Rate and Voice Controls | Added `window._ttsRate` global read by `speak()`; added `speechRate` React state in `App` (default 0.85) persisted to `jlpt_tts_rate`; added `useEffect` syncing state to `window._ttsRate`; added `<select>` dropdown in header with 0.5×/0.75×/0.85×/1.0×/1.25× options; added `.tts-rate-label` and `.tts-rate-select` CSS. 125 tests still passing. |

@@ -24,6 +24,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .view-btns{display:flex;gap:4px}
 .view-btn{padding:5px 12px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:#fff;border-radius:4px;cursor:pointer;font-size:0.8rem;transition:background 0.2s}
 .view-btn.active,.view-btn:hover{background:rgba(255,255,255,0.15)}
+.tts-rate-label{display:flex;align-items:center;color:#fff;font-size:0.8rem;white-space:nowrap}
+.tts-rate-select{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:3px 4px;font-size:0.8rem;cursor:pointer}
 .main{flex:1;padding:20px;max-width:900px;margin:0 auto;width:100%}
 .day-card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
 .day-header{padding:20px 24px 16px;border-bottom:2px solid #f0f0f0}
@@ -316,13 +318,14 @@ function lsSave(data) {
 }
 
 // ── TTS ──────────────────────────────────────────────────────────────────────
+window._ttsRate = 0.85;
 function speak(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   var doSpeak = function() {
     var u = new SpeechSynthesisUtterance(text);
     u.lang = 'ja-JP';
-    u.rate = 0.85;
+    u.rate = window._ttsRate || 0.85;
     var vs = window.speechSynthesis.getVoices();
     var ja = vs.find(function(v) { return v.lang && v.lang.startsWith('ja'); });
     if (ja) u.voice = ja;
@@ -865,6 +868,17 @@ function App() {
     _React$useStateStorageErrArr = _slicedToArray(_React$useStateStorageErr, 2),
     storageError = _React$useStateStorageErrArr[0],
     setStorageError = _React$useStateStorageErrArr[1];
+  var _React$useStateSpeechRate = React.useState(function () {
+      var stored = parseFloat(localStorage.getItem('jlpt_tts_rate'));
+      return [0.5, 0.75, 1.0, 1.25].indexOf(stored) !== -1 ? stored : 0.85;
+    }),
+    _React$useStateSpeechRate2 = _slicedToArray(_React$useStateSpeechRate, 2),
+    speechRate = _React$useStateSpeechRate2[0],
+    setSpeechRate = _React$useStateSpeechRate2[1];
+  React.useEffect(function () {
+    window._ttsRate = speechRate;
+    safeSave('jlpt_tts_rate', String(speechRate));
+  }, [speechRate]);
   React.useEffect(function () {
     function handleStorageError() { setStorageError(true); }
     window.addEventListener('storage-save-error', handleStorageError);
@@ -939,7 +953,19 @@ function App() {
     style: {
       width: pct + '%'
     }
-  })), /*#__PURE__*/React.createElement("span", null, completed.size, " / ", totalDays)), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", null, completed.size, " / ", totalDays)), /*#__PURE__*/React.createElement("label", {
+    className: "tts-rate-label"
+  }, "\uD83D\uDD0A\u00A0", /*#__PURE__*/React.createElement("select", {
+    className: "tts-rate-select",
+    value: String(speechRate),
+    onChange: function(e) { setSpeechRate(parseFloat(e.target.value)); },
+    'aria-label': "TTS playback speed"
+  }, /*#__PURE__*/React.createElement("option", { value: "0.5" }, "0.5\u00D7"),
+     /*#__PURE__*/React.createElement("option", { value: "0.75" }, "0.75\u00D7"),
+     /*#__PURE__*/React.createElement("option", { value: "0.85" }, "0.85\u00D7"),
+     /*#__PURE__*/React.createElement("option", { value: "1" }, "1.0\u00D7"),
+     /*#__PURE__*/React.createElement("option", { value: "1.25" }, "1.25\u00D7")
+  )), /*#__PURE__*/React.createElement("div", {
     className: "view-btns",
     role: "navigation",
     'aria-label': "View navigation"
