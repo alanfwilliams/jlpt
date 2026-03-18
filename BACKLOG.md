@@ -13,30 +13,6 @@ files/lines, and a concrete implementation plan.
 
 ---
 
-## Task 9 — Add Export/Import Progress
-
-**Priority:** LOW | **Effort:** Medium | **Category:** UX
-
-**Problem:** All progress is in localStorage with no backup mechanism. Users
-lose everything if they clear browser data.
-
-**Files:**
-- `index.html` — add Export/Import buttons to Overview or header
-
-**Implementation:**
-1. Add "Export Progress" button that:
-   - Collects all `jlpt_*` keys from localStorage
-   - Creates a JSON blob with version field
-   - Triggers a file download (`jlpt-progress-YYYY-MM-DD.json`)
-2. Add "Import Progress" button that:
-   - Opens a file picker for `.json`
-   - Validates the structure
-   - Confirms overwrite with user
-   - Writes to localStorage and reloads
-3. Add tests for the export/import data format validation
-
----
-
 ## Task 10 — Input Validation Hardening in checkTyping
 
 **Priority:** LOW | **Effort:** Low | **Category:** Quality
@@ -244,6 +220,29 @@ disconnected from the course flow.
 
 ---
 
+## Task 19 — Progressive Lesson Unlock Indicator
+
+**Priority:** LOW | **Effort:** Low | **Category:** UX / Motivation
+
+**Problem:** The Overview calendar shows all 1,720 days at once, which can feel
+overwhelming. Users have no visual distinction between days they are "eligible"
+to study (up to the current streak day + 1) versus future locked days.
+
+**Files:**
+- `index.html` — Overview component, calendar cell rendering
+- `index.html` — CSS for locked cell style
+
+**Implementation:**
+1. Define "unlocked" days as days 1 through `max(dayNum, max(completed)+1)`.
+   Days beyond that range are "locked".
+2. Add a `.locked` CSS class to calendar cells beyond the unlocked range:
+   reduced opacity (0.35), `cursor: default`, no hover highlight.
+3. Suppress the `onClick` handler for locked cells so clicking does nothing.
+4. Add a `title="Not yet unlocked"` tooltip on locked cells.
+5. Add tests: verify locked/unlocked boundary logic for a fixture completed set.
+
+---
+
 ## Completed Tasks
 
 | Date | Task | Summary |
@@ -256,3 +255,4 @@ disconnected from the course flow.
 | 2026-03-14 | Task 6 — Runtime Curriculum Validation | Added `validateCurriculum()` to `lib.js` (checks array type, length=1720, required fields, day-number integrity at spot positions); wired into App render in `index.html` to show error UI on failure; 5 new tests (125 total). |
 | 2026-03-15 | Task 7 — Consolidate Duplicate Review Button Styles | Added `:root` CSS custom properties for grade button colors (`--btn-again/hard/good/easy`) and level colors (`--level-n5/n4/n3/n2/n1`); removed duplicate `.review-btns`/`.review-btn` CSS block; added `.review-btns--3` modifier for ReviewView 3-column layout; added `LEVEL_COLORS` lookup object referencing `PHASE_COLORS` to replace ternary chain. 125 tests still passing. |
 | 2026-03-16 | Task 8 — Add TTS Rate and Voice Controls | Added `window._ttsRate` global read by `speak()`; added `speechRate` React state in `App` (default 0.85) persisted to `jlpt_tts_rate`; added `useEffect` syncing state to `window._ttsRate`; added `<select>` dropdown in header with 0.5×/0.75×/0.85×/1.0×/1.25× options; added `.tts-rate-label` and `.tts-rate-select` CSS. 125 tests still passing. |
+| 2026-03-17 | Task 9 — Add Export/Import Progress | Added `exportProgress()` and `validateProgressData()` to `lib.js`; added Export/Import buttons to app header in `index.html`; export downloads `jlpt-progress-YYYY-MM-DD.json` with version field; import validates structure, confirms overwrite, writes to localStorage, and reloads; added `.data-btn` CSS; 7 new tests (132 total). |

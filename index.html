@@ -26,6 +26,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .view-btn.active,.view-btn:hover{background:rgba(255,255,255,0.15)}
 .tts-rate-label{display:flex;align-items:center;color:#fff;font-size:0.8rem;white-space:nowrap}
 .tts-rate-select{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:3px 4px;font-size:0.8rem;cursor:pointer}
+.data-btn{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:3px 8px;font-size:0.8rem;cursor:pointer;white-space:nowrap}
+.data-btn:hover{background:rgba(255,255,255,0.2)}
 .main{flex:1;padding:20px;max-width:900px;margin:0 auto;width:100%}
 .day-card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
 .day-header{padding:20px 24px 16px;border-bottom:2px solid #f0f0f0}
@@ -927,6 +929,46 @@ function App() {
   React.useEffect(function () {
     safeSave('n5_completed', JSON.stringify(_toConsumableArray(completed)));
   }, [completed]);
+  function handleExport() {
+    var data = exportProgress();
+    if (!data) { alert('Unable to access storage for export.'); return; }
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var d = new Date();
+    var stamp = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    a.href = url;
+    a.download = 'jlpt-progress-' + stamp + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  function handleImport() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var parsed = JSON.parse(ev.target.result);
+          var check = validateProgressData(parsed);
+          if (!check.valid) { alert('Invalid progress file: ' + check.error); return; }
+          if (!confirm('This will overwrite your current progress. Continue?')) return;
+          Object.keys(parsed.keys).forEach(function (k) {
+            safeSave(k, parsed.keys[k]);
+          });
+          location.reload();
+        } catch (err) {
+          alert('Failed to read file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
   return /*#__PURE__*/React.createElement("div", {
     className: "app"
   }, storageError && /*#__PURE__*/React.createElement("div", {
@@ -965,7 +1007,17 @@ function App() {
      /*#__PURE__*/React.createElement("option", { value: "0.85" }, "0.85\u00D7"),
      /*#__PURE__*/React.createElement("option", { value: "1" }, "1.0\u00D7"),
      /*#__PURE__*/React.createElement("option", { value: "1.25" }, "1.25\u00D7")
-  )), /*#__PURE__*/React.createElement("div", {
+  )), /*#__PURE__*/React.createElement("button", {
+    className: "data-btn",
+    onClick: handleExport,
+    'aria-label': "Export progress to file",
+    title: "Export progress"
+  }, "Export"), /*#__PURE__*/React.createElement("button", {
+    className: "data-btn",
+    onClick: handleImport,
+    'aria-label': "Import progress from file",
+    title: "Import progress"
+  }, "Import"), /*#__PURE__*/React.createElement("div", {
     className: "view-btns",
     role: "navigation",
     'aria-label': "View navigation"

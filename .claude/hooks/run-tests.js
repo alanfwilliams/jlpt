@@ -925,6 +925,38 @@ test("validateCurriculum: rejects wrong day number", function (a) {
   a.ok(result.error.indexOf('999') !== -1 || result.error.indexOf('day') !== -1, "error mentions day mismatch");
 });
 
+// ── validateProgressData ──────────────────────────────────────────────────────
+test("validateProgressData: valid object passes", function (a) {
+  var data = { version: 1, exported: '2026-01-01T00:00:00.000Z', keys: { n5_day: '5' } };
+  var r = validateProgressData(data);
+  a.ok(r.valid, 'valid');
+  a.equal(r.error, null);
+});
+test("validateProgressData: null fails", function (a) {
+  a.notOk(validateProgressData(null).valid);
+});
+test("validateProgressData: wrong version fails", function (a) {
+  var r = validateProgressData({ version: 2, keys: {} });
+  a.notOk(r.valid);
+  a.ok(r.error.indexOf('version') !== -1, 'error mentions version');
+});
+test("validateProgressData: missing keys field fails", function (a) {
+  var r = validateProgressData({ version: 1 });
+  a.notOk(r.valid);
+});
+test("validateProgressData: unknown key in keys fails", function (a) {
+  var r = validateProgressData({ version: 1, keys: { evil: 'x' } });
+  a.notOk(r.valid);
+  a.ok(r.error.indexOf('unknown') !== -1, 'error mentions unknown');
+});
+test("validateProgressData: empty keys object passes", function (a) {
+  a.ok(validateProgressData({ version: 1, keys: {} }).valid);
+});
+test("validateProgressData: all known keys pass", function (a) {
+  var keys = { n5_day: '1', n5_completed: '[]', n5_furigana: 'true', n5_srs: '{}', n5_2025: '{}', jlpt_tts_rate: '0.85' };
+  a.ok(validateProgressData({ version: 1, keys: keys }).valid);
+});
+
 // ── summary ───────────────────────────────────────────────────────────────────
 var total = _pass + _fail;
 if (_fail === 0) {
